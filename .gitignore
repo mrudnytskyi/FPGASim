@@ -43,5 +43,5 @@ local.properties
 /bin
 
 # Project files savings 
-.xml
-.txt
+*.xml
+*.txt
