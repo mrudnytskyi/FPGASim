@@ -23,6 +23,7 @@ tmp/**/*
 *.swp
 *~.nib
 local.properties
+
 # It is easy to see dependences in classpath
 #.classpath
 .settings/
@@ -40,3 +41,7 @@ local.properties
 # PDT-specific
 .buildpath
 /bin
+
+# Project files savings 
+.xml
+.txt
