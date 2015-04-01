@@ -38,7 +38,8 @@ public class MainFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			//TODO append from last version
+			GeneratorFrame gf = new GeneratorFrame();
+			gf.setVisible(true);
 		}	
 	}
 	
