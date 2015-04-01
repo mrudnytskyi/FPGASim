@@ -80,12 +80,12 @@ public class LinkerFrame extends Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (((LinkerModel) table.getModel()).isEmptyTransitions()) {
-				showWarning("Ignoring changes because of empty lines!");
+				showWarning("Empty lines!");
 			} else {
 				LinkerFrame.this.observer.update(null, 
 						((LinkerModel) table.getModel()).getData());
+				setVisible(false);
 			}
-			setVisible(false);
 		}
 	}
 	
