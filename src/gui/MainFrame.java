@@ -18,6 +18,8 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
+import com.thoughtworks.xstream.XStream;
+
 /**
  * Main frame for application.
  * 
@@ -104,8 +106,8 @@ public class MainFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			LinkerFrame lf = new LinkerFrame(graph.countVertexes(),
-					graph.createTransitions(), MainFrame.this.graph);
+			LinkerFrame lf = new LinkerFrame(graph.createTransitions(),
+					MainFrame.this.graph);
 			lf.setVisible(true);
 		}
 	}
@@ -120,7 +122,16 @@ public class MainFrame extends Frame {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			PropertiesFrame pf = new PropertiesFrame();
+			//TODO rewrite?
+			int count = 0;
+			try {
+				count = ((double[][]) new XStream().fromXML(
+						new File("library.xml"))).length;
+			} catch (Exception ex) {
+				showError("Exception" + ex.getMessage());
+			}
+			PropertiesFrame pf = new PropertiesFrame(count, 
+					graph.getPropertiesData(), graph);
 			pf.setVisible(true);
 		}
 	}

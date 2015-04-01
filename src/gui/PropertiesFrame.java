@@ -5,13 +5,18 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.util.Observer;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumnModel;
 
 /**
  * Frame for setting properties for vertexes in graph.
@@ -34,7 +39,13 @@ public class PropertiesFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO 
+			if (((PropertiesModel) table.getModel()).isEmptyProperties()) {
+				showWarning("Empty lines!");
+			} else {
+				PropertiesFrame.this.observer.update(null, 
+						((PropertiesModel) table.getModel()).getData());
+				setVisible(false);
+			}
 		}
 	}
 	
@@ -48,7 +59,71 @@ public class PropertiesFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO 
+			setVisible(false);
+		}
+	}
+	
+	private class PropertiesModel extends AbstractTableModel {
+
+		private static final long serialVersionUID = -3160038264112570310L;
+
+		private final int[] data;
+		
+		public PropertiesModel(int[] data) {
+			this.data = data;
+		}
+		
+		public boolean isEmptyProperties() {
+			for (int i : data) {
+				if (i == -1) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		public int[] getData() {
+			return data;
+		}
+
+		@Override
+		public int getRowCount() {
+			return data.length;
+		}
+
+		@Override
+		public int getColumnCount() {
+			return 2;
+		}
+		
+		@Override
+		public String getColumnName(int columnIndex) {
+			if (columnIndex == 0) {
+				return "Vertex";
+			} else {
+				return "Hardware Task";
+			}
+		}
+		
+		@Override
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
+			return columnIndex == 1 ? true : false;
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			if (columnIndex == 0) {
+				return rowIndex;
+			} else {
+				return data[rowIndex];
+			}
+		}
+		
+		@Override
+		public void setValueAt(Object value, int rowIndex, int columnIndex) {
+			if (columnIndex == 1) {
+				data[rowIndex] = Integer.parseInt((String) value);
+			}
 		}
 	}
 
@@ -59,15 +134,18 @@ public class PropertiesFrame extends Frame {
 	private final JButton ok = new JButton(new Ok(table));
 	
 	private final JButton cancel = new JButton(new Cancel());
+	
+	private final Observer observer;
 
-	public PropertiesFrame() {
+	public PropertiesFrame(int tasksCount, int[] data, Observer o) {
 		super("Properties");
+		this.observer = o;
 		setLayout(new BorderLayout());
 		setResizable(false);
 		setAlwaysOnTop(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		add(createContent(), BorderLayout.CENTER);
-		init();
+		init(tasksCount, data);
 		pack();
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		double x = (d.getWidth() - getWidth())/2;
@@ -75,8 +153,18 @@ public class PropertiesFrame extends Frame {
 		setLocation((int) x, (int) y);
 	}
 	
-	private void init() {
-		//TODO
+	private void init(int tasksCount, int[] data) {
+		table.setModel(new PropertiesModel(data));
+		String[] items = new String[tasksCount];
+		for (int i = 0; i < items.length; i++) {
+			items[i] = String.valueOf(i);
+		}
+		JComboBox<String> comboBox = new JComboBox<String>(items);
+		DefaultCellEditor editor = new DefaultCellEditor(comboBox);
+		TableColumnModel tcm = table.getColumnModel();
+		for (int i = 0; i < tcm.getColumnCount(); i++) {
+			tcm.getColumn(i).setCellEditor(editor);
+		}
 	}
 	
 	private JPanel createContent() {

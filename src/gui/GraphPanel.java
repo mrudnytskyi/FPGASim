@@ -3,6 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +42,8 @@ public class GraphPanel extends JPanel implements Observer {
 	private final List<mxICell> vertexes = new ArrayList<mxICell>();
 	
 	private final List<mxICell> edges = new ArrayList<mxICell>();
+	
+	private int[] propertiesData;
 	
 	private static int counter = 0;
 
@@ -115,24 +118,36 @@ public class GraphPanel extends JPanel implements Observer {
 		}
 		return transitions;
 	}
+	
+	public int[] getPropertiesData() {
+		if (propertiesData == null) {
+			propertiesData = new int[vertexes.size()];
+			Arrays.fill(propertiesData, -1);
+		}
+		return propertiesData;
+	}
 
 	@Override
 	public void update(Observable o, Object arg) {
-		@SuppressWarnings("unchecked")
-		//TODO rewrite!
-		List<int[]> data = (List<int[]>) arg;
-		Object[] edges = graph.getAllEdges(vertexes.toArray());
-		for (Object edge : edges) {
-			graph.getModel().remove(edge);
-		}
-		this.edges.clear();
-		for (int[] cur : data) {
-			addEdge(cur[0], cur[1]);
-		}
-		if (!vertexes.isEmpty()) {
-			mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);
-			layout.execute(null, vertexes.get(0));
-			repaint();
+		if (arg instanceof List) {
+			@SuppressWarnings("unchecked")
+			//TODO rewrite!
+			List<int[]> data = (List<int[]>) arg;
+			Object[] edges = graph.getAllEdges(vertexes.toArray());
+			for (Object edge : edges) {
+				graph.getModel().remove(edge);
+			}
+			this.edges.clear();
+			for (int[] cur : data) {
+				addEdge(cur[0], cur[1]);
+			}
+			if (!vertexes.isEmpty()) {
+				mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);
+				layout.execute(null, vertexes.get(0));
+				repaint();
+			}
+		} else {
+			propertiesData = (int[]) arg;
 		}
 	}
 }
