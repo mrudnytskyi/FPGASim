@@ -104,7 +104,6 @@ public class LinkerFrame extends Frame {
 	}
 	
 	private class LinkerModel extends AbstractTableModel {
-		//TODO add one more column
 
 		private static final long serialVersionUID = 490187158106065021L;
 		
@@ -153,7 +152,7 @@ public class LinkerFrame extends Frame {
 		}
 
 		@Override
-		public boolean isCellEditable(int rowIndex, int colunIndex) {
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
 			return true;
 		}
 
@@ -203,10 +202,7 @@ public class LinkerFrame extends Frame {
 	
 	private final Observer observer;
 
-	/**
-	 * TODO vertexCount delete?
-	 */
-	public LinkerFrame(int vertexesCount, int[][] transtions, Observer o) {
+	public LinkerFrame(int[][] transtions, Observer o) {
 		super("Links");
 		this.observer = o;
 		setLayout(new BorderLayout());
@@ -214,7 +210,7 @@ public class LinkerFrame extends Frame {
 		setAlwaysOnTop(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		add(createContent(), BorderLayout.CENTER);
-		init(vertexesCount, transtions);
+		init(transtions);
 		pack();
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		double x = (d.getWidth() - getWidth())/2;
@@ -222,9 +218,9 @@ public class LinkerFrame extends Frame {
 		setLocation((int) x, (int) y);
 	}
 
-	private void init(int vertexesCount, int[][] transtions) {
+	private void init(int[][] transtions) {
 		table.setModel(new LinkerModel(transtions));
-		String[] items = new String[vertexesCount];
+		String[] items = new String[transtions.length];
 		for (int i = 0; i < items.length; i++) {
 			items[i] = String.valueOf(i);
 		}

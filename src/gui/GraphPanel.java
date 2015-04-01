@@ -105,10 +105,6 @@ public class GraphPanel extends JPanel implements Observer {
 		repaint();
 	}
 	
-	public int countVertexes() {
-		return vertexes.size();
-	}
-	
 	public int[][] createTransitions() {
 		int[][] transitions = new int[vertexes.size()][vertexes.size()];
 		Iterator<mxICell> iterator = edges.iterator();
