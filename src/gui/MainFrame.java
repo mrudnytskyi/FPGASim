@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.FileWriter;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -58,7 +59,21 @@ public class MainFrame extends Frame {
 			chooser.setSelectedFile(new File("temp.xml"));
 			int result = chooser.showOpenDialog(MainFrame.this);
 			if (result == JFileChooser.APPROVE_OPTION) {
-				// TODO write opening
+				Object[] memento = (Object[]) new XStream().fromXML(
+						chooser.getSelectedFile());
+				int[][] trans = (int[][]) memento[0];
+				for (int i = 0; i < trans.length; i++) {
+					graph.addVertex();
+				}
+				for (int i = 0; i < trans.length; i++) {
+					for (int j = i; j < trans[i].length; j++) {
+						if (trans[i][j] == 1) {
+							graph.addEdge(i, j);
+						}
+					}
+				}
+				graph.update(null, memento[1]);
+				graph.update();
 			}
 		}
 	}
@@ -78,7 +93,17 @@ public class MainFrame extends Frame {
 			chooser.setSelectedFile(new File("temp.xml"));
 			int result = chooser.showSaveDialog(MainFrame.this);
 			if (result == JFileChooser.APPROVE_OPTION) {
-				//TODO write
+				int[][] trans = graph.createTransitions();
+				int[] prop = graph.getPropertiesData();
+				Object[] memento = new Object[2];
+				memento[0] = trans;
+				memento[1] = prop;
+				try (FileWriter fw = new FileWriter(
+						chooser.getSelectedFile())) {
+					new XStream().toXML(memento, fw);
+				} catch (Exception ex) {
+					showError("Exception " + ex.getMessage());
+				}
 			}
 		}
 	}
@@ -183,7 +208,7 @@ public class MainFrame extends Frame {
 		}
 	}
 	
-	public class XMLFileFilter extends FileFilter {
+	private class XMLFileFilter extends FileFilter {
 
 		@Override
 		public boolean accept(File file) {
@@ -200,10 +225,10 @@ public class MainFrame extends Frame {
 
 		@Override
 		public String getDescription() {
-			return "eXtensible markup language files (XML)";
+			return "eXtensible Markup Language files (XML)";
 		}
 	}
-
+	
 	private static final long serialVersionUID = 8350407021970335634L;
 	
 	private final GraphPanel graph = new GraphPanel();

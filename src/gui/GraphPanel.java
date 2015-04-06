@@ -141,13 +141,17 @@ public class GraphPanel extends JPanel implements Observer {
 			for (int[] cur : data) {
 				addEdge(cur[0], cur[1]);
 			}
-			if (!vertexes.isEmpty()) {
-				mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);
-				layout.execute(null, vertexes.get(0));
-				repaint();
-			}
+			update();
 		} else {
 			propertiesData = (int[]) arg;
+		}
+	}
+	
+	public void update() {
+		if (!vertexes.isEmpty()) {
+			mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);
+			layout.execute(null, vertexes.get(0));
+			repaint();
 		}
 	}
 }
