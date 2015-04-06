@@ -58,7 +58,7 @@ public abstract class Frame extends JFrame {
 	
 	public void showInfo(String msg) {
 		String path = "res\\info_big.png";
-		JOptionPane.showMessageDialog(this, msg, "About",
+		JOptionPane.showMessageDialog(this, msg, "Info",
 				JOptionPane.INFORMATION_MESSAGE, new ImageIcon(path));
 	}
 	

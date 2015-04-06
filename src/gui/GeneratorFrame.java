@@ -28,6 +28,7 @@ import com.thoughtworks.xstream.XStream;
  * @author Mir4ik
  * @version 0.1 1.04.2015
  */
+//TODO integrate or delete
 public class GeneratorFrame extends Frame {
 	
 	private enum TokensType {
@@ -44,7 +45,7 @@ public class GeneratorFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			//TODO rewrite?
+			//TODO rewrite working with library
 			int count = 0;
 			try {
 				count = ((double[][]) new XStream().fromXML(
@@ -83,7 +84,7 @@ public class GeneratorFrame extends Frame {
 		}
 	}
 	
-	public class TXTFileFilter extends FileFilter {
+	private class TXTFileFilter extends FileFilter {
 
 		@Override
 		public boolean accept(File file) {
@@ -100,10 +101,10 @@ public class GeneratorFrame extends Frame {
 
 		@Override
 		public String getDescription() {
-			return "Text files (TXT)";
+			return "TeXT files (TXT)";
 		}
 	}
-
+	
 	private static final long serialVersionUID = -3695903238098950565L;
 	
 	private final JButton ok = new JButton(new Ok());
