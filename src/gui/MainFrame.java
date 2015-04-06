@@ -5,6 +5,9 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -148,7 +151,7 @@ public class MainFrame extends Frame {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			//TODO rewrite?
+			//TODO rewrite working with library
 			int count = 0;
 			try {
 				count = ((double[][]) new XStream().fromXML(
@@ -174,6 +177,64 @@ public class MainFrame extends Frame {
 		public void actionPerformed(ActionEvent e) {
 			LibraryFrame lf = new LibraryFrame();
 			lf.setVisible(true);
+		}
+	}
+	
+	private class CalculateMax extends Action {
+
+		private static final long serialVersionUID = 7730347825572796898L;
+
+		public CalculateMax() {
+			super("Calculate", "res\\calc.png", "res\\calc_big.png");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int[][] trans = graph.createTransitions();
+			int[] props = graph.getPropertiesData();
+			//TODO rewrite working with library
+			double[][] library = null;
+			try {
+				library = ((double[][]) new XStream().fromXML(
+						new File("library.xml")));
+			} catch (Exception ex) {
+				showError("Exception" + ex.getMessage());
+			}
+			
+			List<double[]> times = new LinkedList<double[]>();
+			times.add(new double[] {0, library[props[0]][1]});
+			for (int i = 0; i < trans.length - 1; i++) {
+				if (!contains(times, i)) {
+					continue;
+				}
+				List<Integer> connectedList = new LinkedList<Integer>();
+				for (int j = 0; j < trans[i].length; j++) {
+					if (trans[i][j] == 1) {
+						connectedList.add(j);
+					}
+				}
+				Integer[] connected = connectedList.toArray(
+						new Integer[connectedList.size()]);
+				double[] connectedTime = new double[connected.length];
+				for (int k = 0; k < connectedTime.length; k++) {
+					connectedTime[k] = library[props[connected[k]]][1];
+				}
+				int max = 0;
+				double maxTime = 0;
+				for (int k = 0; k < connectedTime.length; k++) {
+					if (connectedTime[k] > maxTime) {
+						max = k;
+						maxTime = connectedTime[k];
+					}
+				}
+				times.add(new double[] {connected[max], connectedTime[max]});
+			}
+			StringBuilder sb = new StringBuilder();
+			for (double[] array : times) {
+				sb.append(Arrays.toString(array));
+				sb.append(" -> ");
+			}
+			showInfo(sb.toString());
 		}
 	}
 	
@@ -233,8 +294,6 @@ public class MainFrame extends Frame {
 	
 	private final GraphPanel graph = new GraphPanel();
 	
-	private final JPanel charts = new JPanel();
-	
 	public MainFrame() {
 		super("FPGA Sym");
 		setLayout(new BorderLayout());
@@ -250,8 +309,6 @@ public class MainFrame extends Frame {
 		JTabbedPane tabbed = new JTabbedPane();
 		tabbed.addTab("Graph", new ImageIcon("res\\algo.png"),
 				new JScrollPane(graph));
-		tabbed.addTab("Chart", new ImageIcon("res\\chart.png"),
-				new JScrollPane(charts));
 		JPanel content = new JPanel(new BorderLayout());
 		content.add(tabbed, BorderLayout.CENTER);
 		return content;
@@ -274,7 +331,9 @@ public class MainFrame extends Frame {
 		JMenu library = new JMenu("Library");
 		library.add(new Edit());
 		menu.add(library);
-		//TODO add charts building
+		JMenu calculations = new JMenu("Calculations");
+		calculations.add(new CalculateMax());
+		menu.add(calculations);
 		menu.add(Box.createHorizontalGlue());
 		JMenu help = new JMenu("?");
 		help.add(new About());
@@ -292,8 +351,18 @@ public class MainFrame extends Frame {
 		toolBar.add(new AddEdge());
 		toolBar.add(new Properties());
 		toolBar.addSeparator();
-		//TODO add charts building
+		toolBar.add(new CalculateMax());
 		return toolBar;
+	}
+	
+	private static boolean contains(List<double[]> list, int i) {
+		boolean is = false;
+		for (double[] array : list) {
+			if (array[0] == i) {
+				is = true;
+			}
+		}
+		return is;
 	}
 
 	public static void main(String[] args) {
