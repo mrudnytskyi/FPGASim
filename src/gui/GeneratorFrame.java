@@ -18,10 +18,10 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.NumberFormatter;
 
-import com.thoughtworks.xstream.XStream;
+import smth.Library;
 
 /**
  * 
@@ -45,22 +45,14 @@ public class GeneratorFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			//TODO rewrite working with library
-			int count = 0;
-			try {
-				count =
-						((int[][]) new XStream()
-								.fromXML(new File("library.xml"))).length;
-			} catch (Exception ex) {
-				showError("Exception" + ex.getMessage());
-			}
 			JFileChooser chooser = new JFileChooser(".");
-			chooser.setFileFilter(new TXTFileFilter());
+			chooser.setFileFilter(new FileNameExtensionFilter(
+					"TeXT files (TXT)", "txt", "TXT"));
 			chooser.setSelectedFile(new File("program.txt"));
 			int result = chooser.showSaveDialog(GeneratorFrame.this);
 			if (result == JFileChooser.APPROVE_OPTION) {
 				try (FileWriter fw = new FileWriter(chooser.getSelectedFile())) {
-					fw.write(generate(count,
+					fw.write(generate(new Library().getSize(),
 							Integer.parseInt(nodeCount.getText()),
 							Integer.parseInt(ifCount.getText()),
 							Integer.parseInt(maxDeep.getText())));
@@ -83,27 +75,6 @@ public class GeneratorFrame extends Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			setVisible(false);
-		}
-	}
-
-	private class TXTFileFilter extends FileFilter {
-
-		@Override
-		public boolean accept(File file) {
-			boolean isFile = file.isFile();
-			boolean isDir = file.isDirectory();
-			String fileName = file.getName();
-			boolean filterNameLower = fileName.endsWith("TXT");
-			boolean filterNameUpper = fileName.endsWith("txt");
-			if (isDir || ((isFile) && (filterNameLower || filterNameUpper))) {
-				return true;
-			}
-			return false;
-		}
-
-		@Override
-		public String getDescription() {
-			return "TeXT files (TXT)";
 		}
 	}
 

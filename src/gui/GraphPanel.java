@@ -23,7 +23,7 @@ import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 
 /**
- * Panel, containing graph of application. 
+ * Panel, containing graph of application.
  * <p>
  * Note, that this class uses pattern <tt>Observer</tt>, so it implements
  * interface {@link Observer}.
@@ -34,17 +34,17 @@ import com.mxgraph.view.mxStylesheet;
 public class GraphPanel extends JPanel implements Observer {
 
 	private static final long serialVersionUID = 5462589354217696759L;
-	
+
 	private final mxGraph graph = new mxGraph();
-	
-	private mxGraphComponent graphComponent;
-	
+
+	private final mxGraphComponent graphComponent;
+
 	private final List<mxICell> vertexes = new ArrayList<mxICell>();
-	
+
 	private final List<mxICell> edges = new ArrayList<mxICell>();
-	
+
 	private int[] propertiesData;
-	
+
 	private static int counter = 0;
 
 	public GraphPanel() {
@@ -56,15 +56,15 @@ public class GraphPanel extends JPanel implements Observer {
 			defVrt.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
 			styles.setDefaultVertexStyle(defVrt);
 			Hashtable<String, Object> cstArr = new Hashtable<String, Object>();
-			cstArr.put(mxConstants.STYLE_STROKECOLOR, 
+			cstArr.put(mxConstants.STYLE_STROKECOLOR,
 					mxUtils.hexString(Color.BLACK));
-			cstArr.put(mxConstants.STYLE_EDGE, 
+			cstArr.put(mxConstants.STYLE_EDGE,
 					mxConstants.EDGESTYLE_TOPTOBOTTOM);
 			styles.putCellStyle("customArrow", cstArr);
 			Hashtable<String, Object> cstVrt = new Hashtable<String, Object>();
-			cstVrt.put(mxConstants.STYLE_FILLCOLOR, 
+			cstVrt.put(mxConstants.STYLE_FILLCOLOR,
 					mxUtils.hexString(Color.LIGHT_GRAY));
-			cstVrt.put(mxConstants.STYLE_STROKECOLOR, 
+			cstVrt.put(mxConstants.STYLE_STROKECOLOR,
 					mxUtils.hexString(Color.BLACK));
 			cstVrt.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
 			cstVrt.put(mxConstants.STYLE_FONTCOLOR,
@@ -80,45 +80,47 @@ public class GraphPanel extends JPanel implements Observer {
 		graphComponent = new mxGraphComponent(graph);
 		add(graphComponent, BorderLayout.CENTER);
 	}
-	
+
 	public void addVertex() {
 		graph.getModel().beginUpdate();
 		try {
-			mxICell vertex = (mxICell) graph.insertVertex(
-					graph.getDefaultParent(), null, counter,
-					60, 60, 60, 60, "customVertex");
-			counter++;
+			mxICell vertex =
+					(mxICell) graph.insertVertex(graph.getDefaultParent(),
+							null, GraphPanel.counter, 60, 60, 60, 60,
+							"customVertex");
+			GraphPanel.counter++;
 			vertexes.add(vertex);
 		} finally {
 			graph.getModel().endUpdate();
 		}
 		repaint();
 	}
-	
+
 	public void addEdge(int from, int to) {
 		graph.getModel().beginUpdate();
 		try {
-			mxICell edge = (mxICell) graph.insertEdge(
-					graph.getDefaultParent(), null, "", vertexes.get(from),
-					vertexes.get(to), "customArrow");
+			mxICell edge =
+					(mxICell) graph.insertEdge(graph.getDefaultParent(), null,
+							"", vertexes.get(from), vertexes.get(to),
+							"customArrow");
 			edges.add(edge);
 		} finally {
 			graph.getModel().endUpdate();
 		}
 		repaint();
 	}
-	
+
 	public int[][] createTransitions() {
 		int[][] transitions = new int[vertexes.size()][vertexes.size()];
 		Iterator<mxICell> iterator = edges.iterator();
 		while (iterator.hasNext()) {
 			mxCell edge = (mxCell) iterator.next();
-			transitions[vertexes.indexOf(edge.getSource())]
-					[vertexes.indexOf(edge.getTarget())] = 1;
+			transitions[vertexes.indexOf(edge.getSource())][vertexes
+					.indexOf(edge.getTarget())] = 1;
 		}
 		return transitions;
 	}
-	
+
 	public int[] getPropertiesData() {
 		if (propertiesData == null) {
 			propertiesData = new int[vertexes.size()];
@@ -146,7 +148,7 @@ public class GraphPanel extends JPanel implements Observer {
 			propertiesData = (int[]) arg;
 		}
 	}
-	
+
 	public void update() {
 		if (!vertexes.isEmpty()) {
 			mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);

@@ -22,6 +22,8 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import smth.Library;
+
 import com.thoughtworks.xstream.XStream;
 
 /**
@@ -57,6 +59,7 @@ public class MainFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			//TODO bug to clear all before opening
 			JFileChooser chooser = new JFileChooser(".");
 			chooser.setFileFilter(new FileNameExtensionFilter(
 					"eXtensible Markup Language files (XML)", "xml", "XML"));
@@ -152,17 +155,9 @@ public class MainFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			//TODO rewrite working with library
-			int count = 0;
-			try {
-				count =
-						((int[][]) new XStream()
-								.fromXML(new File("library.xml"))).length;
-			} catch (Exception ex) {
-				showError("Exception" + ex.getMessage());
-			}
 			PropertiesFrame pf =
-					new PropertiesFrame(count, graph.getPropertiesData(), graph);
+					new PropertiesFrame(library.getSize(),
+							graph.getPropertiesData(), graph);
 			pf.setVisible(true);
 		}
 	}
@@ -192,20 +187,13 @@ public class MainFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			//TODO bug when empty
 			int[][] trans = graph.createTransitions();
 			int[] props = graph.getPropertiesData();
-			//TODO rewrite working with library
-			int[][] library = null;
-			try {
-				library =
-						((int[][]) new XStream()
-								.fromXML(new File("library.xml")));
-			} catch (Exception ex) {
-				showError("Exception" + ex.getMessage());
-			}
+			int[][] lib = library.getData();
 
 			List<double[]> times = new LinkedList<double[]>();
-			times.add(new double[] { 0, library[props[0]][1] });
+			times.add(new double[] { 0, lib[props[0]][1] });
 			for (int i = 0; i < (trans.length - 1); i++) {
 				if (!MainFrame.contains(times, i)) {
 					continue;
@@ -221,7 +209,7 @@ public class MainFrame extends Frame {
 								.toArray(new Integer[connectedList.size()]);
 				double[] connectedTime = new double[connected.length];
 				for (int k = 0; k < connectedTime.length; k++) {
-					connectedTime[k] = library[props[connected[k]]][1];
+					connectedTime[k] = lib[props[connected[k]]][1];
 				}
 				int max = 0;
 				double maxTime = 0;
@@ -277,6 +265,8 @@ public class MainFrame extends Frame {
 
 	private final GraphPanel graph = new GraphPanel();
 
+	private final Library library = new Library();
+
 	public MainFrame() {
 		super("FPGA Sym");
 		setLayout(new BorderLayout());
@@ -292,6 +282,7 @@ public class MainFrame extends Frame {
 		JTabbedPane tabbed = new JTabbedPane();
 		tabbed.addTab("Graph", new ImageIcon("res\\algo.png"), new JScrollPane(
 				graph));
+		tabbed.addTab("Gant", new ImageIcon("res\\gant.png"), null);
 		JPanel content = new JPanel(new BorderLayout());
 		content.add(tabbed, BorderLayout.CENTER);
 		return content;

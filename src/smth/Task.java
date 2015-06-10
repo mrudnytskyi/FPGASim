@@ -8,6 +8,7 @@ package smth;
 public class Task implements Comparable<Task> {
 
 	private static int counter = 0;
+	private static Library lib = new Library();
 
 	private final int id = Task.counter++;
 	private final int hwN;
@@ -18,34 +19,10 @@ public class Task implements Comparable<Task> {
 
 	public Task(int hwN) {
 		this.hwN = hwN;
-		//TODO temp
-		switch (hwN) {
-		case 0:
-			workTime = 30;
-			bytestreamWords = 7;
-			dataCount = 2;
-			break;
-		case 1:
-			workTime = 27;
-			bytestreamWords = 9;
-			dataCount = 2;
-			break;
-		case 2:
-			workTime = 5;
-			bytestreamWords = 8;
-			dataCount = 2;
-			break;
-		case 3:
-			workTime = 7;
-			bytestreamWords = 11;
-			dataCount = 2;
-			break;
-		default:
-			workTime = 3;
-			bytestreamWords = 10;
-			dataCount = 2;
-			break;
-		}
+		int[][] data = Task.lib.getData();
+		workTime = data[hwN][1];
+		bytestreamWords = data[hwN][0];
+		dataCount = data[hwN][2];
 	}
 
 	public int getId() {

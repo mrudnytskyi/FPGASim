@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.io.FileWriter;
 
 import javax.swing.BorderFactory;
@@ -14,7 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.WindowConstants;
-import javax.swing.table.AbstractTableModel;
+
+import smth.Library;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -39,9 +39,9 @@ public class LibraryFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			try (FileWriter fw = new FileWriter(LibraryFrame.LIBRARY_FILE)) {
+			try (FileWriter fw = new FileWriter(Library.LIBRARY_FILE)) {
 				new XStream().toXML(
-						((LibraryModel) table.getModel()).getData(), fw);
+						((Library) table.getModel()).getData(), fw);
 			} catch (Exception ex) {
 				showError("Exception " + ex.getMessage());
 			}
@@ -63,73 +63,6 @@ public class LibraryFrame extends Frame {
 		}
 	}
 
-	private class LibraryModel extends AbstractTableModel {
-
-		private static final long serialVersionUID = -8149438991804788594L;
-
-		private final int[][] data;
-
-		public LibraryModel(String path) {
-			data = (int[][]) new XStream().fromXML(new File(path));
-			if ((data.length == 0) || (data[0].length != 3)) {
-				throw new IllegalArgumentException("Wrong library file!");
-			}
-		}
-
-		public int[][] getData() {
-			return data;
-		}
-
-		@Override
-		public int getRowCount() {
-			return data.length;
-		}
-
-		@Override
-		public int getColumnCount() {
-			return 4;
-		}
-
-		@Override
-		public String getColumnName(int columnIndex) {
-			switch (columnIndex) {
-			case 0:
-				return "TASK";
-			case 1:
-				return "BYTESTREAM_WORDS";
-			case 2:
-				return "WORK_TIME";
-			case 3:
-				return "DATA_WORDS";
-			}
-			return null;
-		}
-
-		@Override
-		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			return true;
-		}
-
-		@Override
-		public Object getValueAt(int rowIndex, int columnIndex) {
-			if (columnIndex == 0) {
-				return rowIndex;
-			}
-			return data[rowIndex][columnIndex - 1];
-		}
-
-		@Override
-		public void setValueAt(Object value, int row, int column) {
-			if (column != 0) {
-				try {
-					data[row][column - 1] = Integer.valueOf((String) value);
-				} catch (Exception e) {
-					showError("Exception " + e.getMessage());
-				}
-			}
-		}
-	}
-
 	private static final long serialVersionUID = 5416000952627581896L;
 
 	private final JTable table = new JTable();
@@ -137,8 +70,6 @@ public class LibraryFrame extends Frame {
 	private final JButton ok = new JButton(new Ok(table));
 
 	private final JButton cancel = new JButton(new Cancel());
-
-	public static final String LIBRARY_FILE = "library.xml";
 
 	public LibraryFrame() {
 		super("Library");
@@ -157,7 +88,7 @@ public class LibraryFrame extends Frame {
 
 	private void init() {
 		try {
-			table.setModel(new LibraryModel(LibraryFrame.LIBRARY_FILE));
+			table.setModel(new Library());
 		} catch (Exception e) {
 			showError("Exception" + e.getMessage());
 		}

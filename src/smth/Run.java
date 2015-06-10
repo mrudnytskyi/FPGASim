@@ -112,7 +112,7 @@ public class Run {
 		System.out.println(sb.toString());
 	}
 
-	//TODO remake data getting
+	//TODO remake data getting and integrate into GUI
 	private static List<Task> makeAll() {
 		List<Task> a = new ArrayList<Task>();
 		a.addAll(Run.all[0]);
