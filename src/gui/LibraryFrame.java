@@ -10,10 +10,10 @@ import java.io.FileWriter;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
 
 import com.thoughtworks.xstream.XStream;
@@ -25,21 +25,21 @@ import com.thoughtworks.xstream.XStream;
  * @version 0.1 17.03.2015
  */
 public class LibraryFrame extends Frame {
-	
+
 	private class Ok extends Action {
 
 		private static final long serialVersionUID = -2799992289456640097L;
-		
+
 		private final JTable table;
 
 		public Ok(JTable table) {
 			super("OK", "res\\ok.png", "res\\ok_big.png");
 			this.table = table;
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			try (FileWriter fw = new FileWriter(LIBRARY_FILE)) {
+			try (FileWriter fw = new FileWriter(LibraryFrame.LIBRARY_FILE)) {
 				new XStream().toXML(
 						((LibraryModel) table.getModel()).getData(), fw);
 			} catch (Exception ex) {
@@ -48,7 +48,7 @@ public class LibraryFrame extends Frame {
 			setVisible(false);
 		}
 	}
-	
+
 	private class Cancel extends Action {
 
 		private static final long serialVersionUID = -7291044240556796475L;
@@ -62,21 +62,21 @@ public class LibraryFrame extends Frame {
 			setVisible(false);
 		}
 	}
-	
+
 	private class LibraryModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = -8149438991804788594L;
 
-		private final double[][] data;
+		private final int[][] data;
 
 		public LibraryModel(String path) {
-			this.data = (double[][]) new XStream().fromXML(new File(path));
-			if (data.length == 0 || data[0].length != 2) {
+			data = (int[][]) new XStream().fromXML(new File(path));
+			if ((data.length == 0) || (data[0].length != 3)) {
 				throw new IllegalArgumentException("Wrong library file!");
 			}
 		}
-		
-		public double[][] getData() {
+
+		public int[][] getData() {
 			return data;
 		}
 
@@ -87,7 +87,7 @@ public class LibraryFrame extends Frame {
 
 		@Override
 		public int getColumnCount() {
-			return 3;
+			return 4;
 		}
 
 		@Override
@@ -96,9 +96,11 @@ public class LibraryFrame extends Frame {
 			case 0:
 				return "TASK";
 			case 1:
-				return "SQUARE";
+				return "BYTESTREAM_WORDS";
 			case 2:
-				return "TIME";
+				return "WORK_TIME";
+			case 3:
+				return "DATA_WORDS";
 			}
 			return null;
 		}
@@ -120,7 +122,7 @@ public class LibraryFrame extends Frame {
 		public void setValueAt(Object value, int row, int column) {
 			if (column != 0) {
 				try {
-					data[row][column - 1] = Double.valueOf((String) value);
+					data[row][column - 1] = Integer.valueOf((String) value);
 				} catch (Exception e) {
 					showError("Exception " + e.getMessage());
 				}
@@ -129,13 +131,13 @@ public class LibraryFrame extends Frame {
 	}
 
 	private static final long serialVersionUID = 5416000952627581896L;
-	
+
 	private final JTable table = new JTable();
-	
+
 	private final JButton ok = new JButton(new Ok(table));
-	
+
 	private final JButton cancel = new JButton(new Cancel());
-	
+
 	public static final String LIBRARY_FILE = "library.xml";
 
 	public LibraryFrame() {
@@ -143,19 +145,19 @@ public class LibraryFrame extends Frame {
 		setLayout(new BorderLayout());
 		setResizable(false);
 		setAlwaysOnTop(true);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		add(createContent(), BorderLayout.CENTER);
 		init();
 		pack();
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		double x = (d.getWidth() - getWidth())/2;
-		double y = (d.getHeight() - getHeight())/2;
+		double x = (d.getWidth() - getWidth()) / 2;
+		double y = (d.getHeight() - getHeight()) / 2;
 		setLocation((int) x, (int) y);
 	}
 
 	private void init() {
 		try {
-			table.setModel(new LibraryModel(LIBRARY_FILE));
+			table.setModel(new LibraryModel(LibraryFrame.LIBRARY_FILE));
 		} catch (Exception e) {
 			showError("Exception" + e.getMessage());
 		}

@@ -20,7 +20,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -31,11 +31,11 @@ import com.thoughtworks.xstream.XStream;
  * @version 0.1 16.03.2015
  */
 public class MainFrame extends Frame {
-	
+
 	private class Generate extends Action {
 
 		private static final long serialVersionUID = -7062237348840489138L;
-		
+
 		public Generate() {
 			super("Generate", "res\\file.png", "res\\file_big.png");
 		}
@@ -44,9 +44,9 @@ public class MainFrame extends Frame {
 		public void actionPerformed(ActionEvent e) {
 			GeneratorFrame gf = new GeneratorFrame();
 			gf.setVisible(true);
-		}	
+		}
 	}
-	
+
 	private class Open extends Action {
 
 		private static final long serialVersionUID = 8335479215032758045L;
@@ -54,18 +54,20 @@ public class MainFrame extends Frame {
 		public Open() {
 			super("Open", "res\\open.png", "res\\open_big.png");
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JFileChooser chooser = new JFileChooser(".");
-			chooser.setFileFilter(new XMLFileFilter());
+			chooser.setFileFilter(new FileNameExtensionFilter(
+					"eXtensible Markup Language files (XML)", "xml", "XML"));
 			chooser.setSelectedFile(new File("temp.xml"));
 			int result = chooser.showOpenDialog(MainFrame.this);
 			if (result == JFileChooser.APPROVE_OPTION) {
-				Object[] memento = (Object[]) new XStream().fromXML(
-						chooser.getSelectedFile());
+				Object[] memento =
+						(Object[]) new XStream().fromXML(chooser
+								.getSelectedFile());
 				int[][] trans = (int[][]) memento[0];
-				for (int i = 0; i < trans.length; i++) {
+				for (int[] tran : trans) {
 					graph.addVertex();
 				}
 				for (int i = 0; i < trans.length; i++) {
@@ -80,7 +82,7 @@ public class MainFrame extends Frame {
 			}
 		}
 	}
-	
+
 	private class Save extends Action {
 
 		private static final long serialVersionUID = 4266151357634163782L;
@@ -88,11 +90,12 @@ public class MainFrame extends Frame {
 		public Save() {
 			super("Save", "res\\save.png", "res\\save_big.png");
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JFileChooser chooser = new JFileChooser(".");
-			chooser.setFileFilter(new XMLFileFilter());
+			chooser.setFileFilter(new FileNameExtensionFilter(
+					"eXtensible Markup Language files (XML)", "xml", "XML"));
 			chooser.setSelectedFile(new File("temp.xml"));
 			int result = chooser.showSaveDialog(MainFrame.this);
 			if (result == JFileChooser.APPROVE_OPTION) {
@@ -101,8 +104,7 @@ public class MainFrame extends Frame {
 				Object[] memento = new Object[2];
 				memento[0] = trans;
 				memento[1] = prop;
-				try (FileWriter fw = new FileWriter(
-						chooser.getSelectedFile())) {
+				try (FileWriter fw = new FileWriter(chooser.getSelectedFile())) {
 					new XStream().toXML(memento, fw);
 				} catch (Exception ex) {
 					showError("Exception " + ex.getMessage());
@@ -110,7 +112,7 @@ public class MainFrame extends Frame {
 			}
 		}
 	}
-	
+
 	private class AddVertex extends Action {
 
 		private static final long serialVersionUID = 2641072448265871581L;
@@ -124,7 +126,7 @@ public class MainFrame extends Frame {
 			graph.addVertex();
 		}
 	}
-	
+
 	private class AddEdge extends Action {
 
 		private static final long serialVersionUID = 7707301510372295044L;
@@ -135,40 +137,40 @@ public class MainFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			LinkerFrame lf = new LinkerFrame(graph.createTransitions(),
-					MainFrame.this.graph);
+			LinkerFrame lf = new LinkerFrame(graph.createTransitions(), graph);
 			lf.setVisible(true);
 		}
 	}
-	
+
 	private class Properties extends Action {
 
 		private static final long serialVersionUID = -8224726385156451096L;
-		
+
 		public Properties() {
 			super("Properties", "res\\props.png", "res\\props_big.png");
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			//TODO rewrite working with library
 			int count = 0;
 			try {
-				count = ((double[][]) new XStream().fromXML(
-						new File("library.xml"))).length;
+				count =
+						((int[][]) new XStream()
+								.fromXML(new File("library.xml"))).length;
 			} catch (Exception ex) {
 				showError("Exception" + ex.getMessage());
 			}
-			PropertiesFrame pf = new PropertiesFrame(count, 
-					graph.getPropertiesData(), graph);
+			PropertiesFrame pf =
+					new PropertiesFrame(count, graph.getPropertiesData(), graph);
 			pf.setVisible(true);
 		}
 	}
-	
+
 	private class Edit extends Action {
 
 		private static final long serialVersionUID = 6367966811361386786L;
-		
+
 		public Edit() {
 			super("Edit", "res\\lib.png", "res\\lib_big.png");
 		}
@@ -179,7 +181,7 @@ public class MainFrame extends Frame {
 			lf.setVisible(true);
 		}
 	}
-	
+
 	private class CalculateMax extends Action {
 
 		private static final long serialVersionUID = 7730347825572796898L;
@@ -193,18 +195,19 @@ public class MainFrame extends Frame {
 			int[][] trans = graph.createTransitions();
 			int[] props = graph.getPropertiesData();
 			//TODO rewrite working with library
-			double[][] library = null;
+			int[][] library = null;
 			try {
-				library = ((double[][]) new XStream().fromXML(
-						new File("library.xml")));
+				library =
+						((int[][]) new XStream()
+								.fromXML(new File("library.xml")));
 			} catch (Exception ex) {
 				showError("Exception" + ex.getMessage());
 			}
-			
+
 			List<double[]> times = new LinkedList<double[]>();
-			times.add(new double[] {0, library[props[0]][1]});
-			for (int i = 0; i < trans.length - 1; i++) {
-				if (!contains(times, i)) {
+			times.add(new double[] { 0, library[props[0]][1] });
+			for (int i = 0; i < (trans.length - 1); i++) {
+				if (!MainFrame.contains(times, i)) {
 					continue;
 				}
 				List<Integer> connectedList = new LinkedList<Integer>();
@@ -213,8 +216,9 @@ public class MainFrame extends Frame {
 						connectedList.add(j);
 					}
 				}
-				Integer[] connected = connectedList.toArray(
-						new Integer[connectedList.size()]);
+				Integer[] connected =
+						connectedList
+								.toArray(new Integer[connectedList.size()]);
 				double[] connectedTime = new double[connected.length];
 				for (int k = 0; k < connectedTime.length; k++) {
 					connectedTime[k] = library[props[connected[k]]][1];
@@ -227,7 +231,7 @@ public class MainFrame extends Frame {
 						maxTime = connectedTime[k];
 					}
 				}
-				times.add(new double[] {connected[max], connectedTime[max]});
+				times.add(new double[] { connected[max], connectedTime[max] });
 			}
 			StringBuilder sb = new StringBuilder();
 			for (double[] array : times) {
@@ -237,22 +241,22 @@ public class MainFrame extends Frame {
 			showInfo(sb.toString());
 		}
 	}
-	
+
 	private class About extends Action {
 
 		private static final long serialVersionUID = -1814964833144105128L;
-		
+
 		public About() {
 			super("About", "res\\info.png", "res\\info_big.png");
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			showInfo("Written by Myroslav Rudnytskyi, Kyiv Politechnic "
 					+ "Institute, group IO-41m, 2015.");
 		}
 	}
-	
+
 	private class Exit extends Action {
 
 		private static final long serialVersionUID = -1523012579322514186L;
@@ -260,7 +264,7 @@ public class MainFrame extends Frame {
 		public Exit() {
 			super("Exit", "res\\exit.png", "res\\exit_big.png");
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (showQuestion("Do you want to exit application?")) {
@@ -268,52 +272,31 @@ public class MainFrame extends Frame {
 			}
 		}
 	}
-	
-	private class XMLFileFilter extends FileFilter {
 
-		@Override
-		public boolean accept(File file) {
-			boolean isFile = file.isFile();
-			boolean isDir = file.isDirectory();
-			String fileName = file.getName();
-			boolean filterNameLower = fileName.endsWith("XML");
-			boolean filterNameUpper = fileName.endsWith("xml");
-			if (isDir || (isFile) && (filterNameLower || filterNameUpper)) {
-				return true;
-			}
-			return false;
-		}
-
-		@Override
-		public String getDescription() {
-			return "eXtensible Markup Language files (XML)";
-		}
-	}
-	
 	private static final long serialVersionUID = 8350407021970335634L;
-	
+
 	private final GraphPanel graph = new GraphPanel();
-	
+
 	public MainFrame() {
 		super("FPGA Sym");
 		setLayout(new BorderLayout());
 		setSize(Toolkit.getDefaultToolkit().getScreenSize());
-		setExtendedState(MAXIMIZED_BOTH);
+		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setJMenuBar(createMenu());
 		add(createToolBar(), BorderLayout.NORTH);
 		add(createContent(), BorderLayout.CENTER);
 	}
-	
+
 	private JPanel createContent() {
 		JTabbedPane tabbed = new JTabbedPane();
-		tabbed.addTab("Graph", new ImageIcon("res\\algo.png"),
-				new JScrollPane(graph));
+		tabbed.addTab("Graph", new ImageIcon("res\\algo.png"), new JScrollPane(
+				graph));
 		JPanel content = new JPanel(new BorderLayout());
 		content.add(tabbed, BorderLayout.CENTER);
 		return content;
 	}
-	
+
 	private JMenuBar createMenu() {
 		JMenuBar menu = new JMenuBar();
 		JMenu algorithm = new JMenu("Algorithm");
@@ -341,7 +324,7 @@ public class MainFrame extends Frame {
 		menu.add(help);
 		return menu;
 	}
-	
+
 	private JToolBar createToolBar() {
 		JToolBar toolBar = new JToolBar("Tools");
 		toolBar.add(new Open());
@@ -354,7 +337,7 @@ public class MainFrame extends Frame {
 		toolBar.add(new CalculateMax());
 		return toolBar;
 	}
-	
+
 	private static boolean contains(List<double[]> list, int i) {
 		boolean is = false;
 		for (double[] array : list) {
@@ -366,12 +349,6 @@ public class MainFrame extends Frame {
 	}
 
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				new MainFrame().setVisible(true);
-			}
-		});
+		SwingUtilities.invokeLater(() -> new MainFrame().setVisible(true));
 	}
 }

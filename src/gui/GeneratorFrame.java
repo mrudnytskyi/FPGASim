@@ -15,9 +15,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.NumberFormatter;
 
@@ -30,7 +30,7 @@ import com.thoughtworks.xstream.XStream;
  */
 //TODO integrate or delete
 public class GeneratorFrame extends Frame {
-	
+
 	private enum TokensType {
 		IF, TASK, CLOSE, NO;
 	}
@@ -48,8 +48,9 @@ public class GeneratorFrame extends Frame {
 			//TODO rewrite working with library
 			int count = 0;
 			try {
-				count = ((double[][]) new XStream().fromXML(
-						new File("library.xml"))).length;
+				count =
+						((int[][]) new XStream()
+								.fromXML(new File("library.xml"))).length;
 			} catch (Exception ex) {
 				showError("Exception" + ex.getMessage());
 			}
@@ -59,7 +60,8 @@ public class GeneratorFrame extends Frame {
 			int result = chooser.showSaveDialog(GeneratorFrame.this);
 			if (result == JFileChooser.APPROVE_OPTION) {
 				try (FileWriter fw = new FileWriter(chooser.getSelectedFile())) {
-					fw.write(generate(count, Integer.parseInt(nodeCount.getText()),
+					fw.write(generate(count,
+							Integer.parseInt(nodeCount.getText()),
 							Integer.parseInt(ifCount.getText()),
 							Integer.parseInt(maxDeep.getText())));
 				} catch (IOException ex) {
@@ -69,7 +71,7 @@ public class GeneratorFrame extends Frame {
 			setVisible(false);
 		}
 	}
-	
+
 	private class Cancel extends Action {
 
 		private static final long serialVersionUID = 8047480767340815989L;
@@ -83,7 +85,7 @@ public class GeneratorFrame extends Frame {
 			setVisible(false);
 		}
 	}
-	
+
 	private class TXTFileFilter extends FileFilter {
 
 		@Override
@@ -93,7 +95,7 @@ public class GeneratorFrame extends Frame {
 			String fileName = file.getName();
 			boolean filterNameLower = fileName.endsWith("TXT");
 			boolean filterNameUpper = fileName.endsWith("txt");
-			if (isDir || (isFile) && (filterNameLower || filterNameUpper)) {
+			if (isDir || ((isFile) && (filterNameLower || filterNameUpper))) {
 				return true;
 			}
 			return false;
@@ -104,37 +106,37 @@ public class GeneratorFrame extends Frame {
 			return "TeXT files (TXT)";
 		}
 	}
-	
+
 	private static final long serialVersionUID = -3695903238098950565L;
-	
+
 	private final JButton ok = new JButton(new Ok());
-	
+
 	private final JButton cancel = new JButton(new Cancel());
-	
-	private final JFormattedTextField nodeCount = 
-			new JFormattedTextField(new NumberFormatter());
-	
-	private final JFormattedTextField ifCount = 
-			new JFormattedTextField(new NumberFormatter());
-	
-	private final JFormattedTextField maxDeep = 
-			new JFormattedTextField(new NumberFormatter());
+
+	private final JFormattedTextField nodeCount = new JFormattedTextField(
+			new NumberFormatter());
+
+	private final JFormattedTextField ifCount = new JFormattedTextField(
+			new NumberFormatter());
+
+	private final JFormattedTextField maxDeep = new JFormattedTextField(
+			new NumberFormatter());
 
 	public GeneratorFrame() {
 		super("Generate");
 		setLayout(new BorderLayout());
 		setResizable(false);
 		setAlwaysOnTop(true);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		add(createContent(), BorderLayout.CENTER);
 		init();
 		pack();
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		double x = (d.getWidth() - getWidth())/2;
-		double y = (d.getHeight() - getHeight())/2;
+		double x = (d.getWidth() - getWidth()) / 2;
+		double y = (d.getHeight() - getHeight()) / 2;
 		setLocation((int) x, (int) y);
 	}
-	
+
 	private void init() {
 		nodeCount.setText("30");
 		ifCount.setText("10");
@@ -154,7 +156,7 @@ public class GeneratorFrame extends Frame {
 		content.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
 		return content;
 	}
-	
+
 	private String generate(int tskMax, int nodeMax, int ifMax, int depthMax) {
 		StringBuilder sb = new StringBuilder();
 		int counter = 0;
@@ -163,20 +165,26 @@ public class GeneratorFrame extends Frame {
 		int ifs = 0;
 		while (counter < nodeMax) {
 			switch (previous) {
-			case NO:	case IF:	case CLOSE:
+			case NO:
+			case IF:
+			case CLOSE:
 				// can be task or if
-				if (ifs < ifMax && depth < depthMax) {
+				if ((ifs < ifMax) && (depth < depthMax)) {
 					switch (new Random().nextInt(2)) {
 					case 1:
 						previous = TokensType.IF;
-						for (int j = 0; j < depth; j++) sb.append("\t");
+						for (int j = 0; j < depth; j++) {
+							sb.append("\t");
+						}
 						sb.append("IF {\r\n");
 						depth++;
 						ifs++;
 						break;
 					case 0:
 						previous = TokensType.TASK;
-						for (int j = 0; j < depth; j++) sb.append("\t");
+						for (int j = 0; j < depth; j++) {
+							sb.append("\t");
+						}
 						sb.append("HWTASK");
 						sb.append(new Random().nextInt(tskMax));
 						sb.append("\r\n");
@@ -185,7 +193,9 @@ public class GeneratorFrame extends Frame {
 					}
 				} else {
 					previous = TokensType.TASK;
-					for (int j = 0; j < depth; j++) sb.append("\t");
+					for (int j = 0; j < depth; j++) {
+						sb.append("\t");
+					}
 					sb.append("HWTASK");
 					sb.append(new Random().nextInt(tskMax));
 					sb.append("\r\n");
@@ -195,18 +205,22 @@ public class GeneratorFrame extends Frame {
 			case TASK:
 				// can be task or if or close
 				if (depth != 0) {
-					if (ifs < ifMax && depth < depthMax) {
+					if ((ifs < ifMax) && (depth < depthMax)) {
 						switch (new Random().nextInt(3)) {
 						case 2:
 							previous = TokensType.IF;
-							for (int j = 0; j < depth; j++) sb.append("\t");
+							for (int j = 0; j < depth; j++) {
+								sb.append("\t");
+							}
 							sb.append("IF {\r\n");
 							depth++;
 							ifs++;
 							break;
 						case 1:
 							previous = TokensType.TASK;
-							for (int j = 0; j < depth; j++) sb.append("\t");
+							for (int j = 0; j < depth; j++) {
+								sb.append("\t");
+							}
 							sb.append("HWTASK");
 							sb.append(new Random().nextInt(tskMax));
 							sb.append("\r\n");
@@ -214,7 +228,9 @@ public class GeneratorFrame extends Frame {
 							break;
 						case 0:
 							previous = TokensType.CLOSE;
-							for (int j = 0; j < depth - 1; j++) sb.append("\t");
+							for (int j = 0; j < (depth - 1); j++) {
+								sb.append("\t");
+							}
 							sb.append("}\r\n");
 							depth--;
 							break;
@@ -223,7 +239,9 @@ public class GeneratorFrame extends Frame {
 						switch (new Random().nextInt(2)) {
 						case 1:
 							previous = TokensType.TASK;
-							for (int j = 0; j < depth; j++) sb.append("\t");
+							for (int j = 0; j < depth; j++) {
+								sb.append("\t");
+							}
 							sb.append("HWTASK");
 							sb.append(new Random().nextInt(tskMax));
 							sb.append("\r\n");
@@ -231,7 +249,9 @@ public class GeneratorFrame extends Frame {
 							break;
 						case 0:
 							previous = TokensType.CLOSE;
-							for (int j = 0; j < depth - 1; j++) sb.append("\t");
+							for (int j = 0; j < (depth - 1); j++) {
+								sb.append("\t");
+							}
 							sb.append("}\r\n");
 							depth--;
 							break;
@@ -239,18 +259,22 @@ public class GeneratorFrame extends Frame {
 					}
 				} else {
 					// can be task or if
-					if (ifs < ifMax && depth < depthMax) {
+					if ((ifs < ifMax) && (depth < depthMax)) {
 						switch (new Random().nextInt(2)) {
 						case 1:
 							previous = TokensType.IF;
-							for (int j = 0; j < depth; j++) sb.append("\t");
+							for (int j = 0; j < depth; j++) {
+								sb.append("\t");
+							}
 							sb.append("IF {\r\n");
 							depth++;
 							ifs++;
 							break;
 						case 0:
 							previous = TokensType.TASK;
-							for (int j = 0; j < depth; j++) sb.append("\t");
+							for (int j = 0; j < depth; j++) {
+								sb.append("\t");
+							}
 							sb.append("HWTASK");
 							sb.append(new Random().nextInt(tskMax));
 							sb.append("\r\n");
@@ -259,7 +283,9 @@ public class GeneratorFrame extends Frame {
 						}
 					} else {
 						previous = TokensType.TASK;
-						for (int j = 0; j < depth; j++) sb.append("\t");
+						for (int j = 0; j < depth; j++) {
+							sb.append("\t");
+						}
 						sb.append("HWTASK");
 						sb.append(new Random().nextInt(tskMax));
 						sb.append("\r\n");
@@ -271,7 +297,9 @@ public class GeneratorFrame extends Frame {
 
 		}
 		while (depth != 0) {
-			for (int j = 0; j < depth - 1; j++) sb.append("\t");
+			for (int j = 0; j < (depth - 1); j++) {
+				sb.append("\t");
+			}
 			sb.append("}\r\n");
 			depth--;
 		}
