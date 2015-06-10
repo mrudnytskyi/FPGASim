@@ -1,5 +1,8 @@
 package gui;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -33,17 +36,21 @@ public abstract class Frame extends JFrame {
 		/**
 		 * Note, that constructor can take <code>null</code> values.
 		 * 
-		 * @param name			action name
-		 * @param smallIcon		path to small image
-		 * @param largeIcon		path to large image
+		 * @param name
+		 *            action name
+		 * @param smallIcon
+		 *            path to small image
+		 * @param largeIcon
+		 *            path to large image
 		 */
 		public Action(String name, String smallIcon, String largeIcon) {
-			putValue(NAME, name);
-			putValue(SMALL_ICON, new ImageIcon(smallIcon));
-			putValue(LARGE_ICON_KEY, new ImageIcon(largeIcon));
+			putValue(javax.swing.Action.NAME, name);
+			putValue(javax.swing.Action.SMALL_ICON, new ImageIcon(smallIcon));
+			putValue(javax.swing.Action.LARGE_ICON_KEY,
+					new ImageIcon(largeIcon));
 		}
 	}
-	
+
 	private static final long serialVersionUID = 1581013918976729599L;
 
 	public Frame(String title) {
@@ -55,26 +62,36 @@ public abstract class Frame extends JFrame {
 		JOptionPane.showMessageDialog(this, msg, "Error",
 				JOptionPane.ERROR_MESSAGE, new ImageIcon(path));
 	}
-	
+
 	public void showInfo(String msg) {
 		String path = "res\\info_big.png";
 		JOptionPane.showMessageDialog(this, msg, "Info",
 				JOptionPane.INFORMATION_MESSAGE, new ImageIcon(path));
 	}
-	
+
 	public boolean showQuestion(String msg) {
 		String path = "res\\question_big.png";
 		if (JOptionPane.showConfirmDialog(this, msg, "Question",
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
 				new ImageIcon(path)) == JOptionPane.YES_OPTION) {
-					return true;
+			return true;
 		}
 		return false;
 	}
-	
+
 	public void showWarning(String msg) {
 		String path = "res\\warning_big.png";
 		JOptionPane.showMessageDialog(this, msg, "Warning",
 				JOptionPane.WARNING_MESSAGE, new ImageIcon(path));
+	}
+
+	/**
+	 * Moves this component to a screen center location.
+	 */
+	protected void moveToScreenCenter() {
+		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+		double x = (d.getWidth() - getWidth()) / 2;
+		double y = (d.getHeight() - getHeight()) / 2;
+		setLocation((int) x, (int) y);
 	}
 }

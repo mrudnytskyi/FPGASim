@@ -2,9 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
@@ -102,10 +100,7 @@ public class GeneratorFrame extends Frame {
 		add(createContent(), BorderLayout.CENTER);
 		init();
 		pack();
-		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		double x = (d.getWidth() - getWidth()) / 2;
-		double y = (d.getHeight() - getHeight()) / 2;
-		setLocation((int) x, (int) y);
+		moveToScreenCenter();
 	}
 
 	private void init() {

@@ -1,9 +1,7 @@
 package gui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +11,10 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
 
@@ -27,18 +25,18 @@ import javax.swing.table.TableColumnModel;
  * @version 0.1 17.03.2015
  */
 public class LinkerFrame extends Frame {
-	
+
 	private class Add extends Action {
 
 		private static final long serialVersionUID = 6237327684509614305L;
-		
-		private final JTable table; 
+
+		private final JTable table;
 
 		public Add(JTable table) {
 			super("Add", "res\\add.png", "res\\add_big.png");
 			this.table = table;
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			LinkerModel model = (LinkerModel) table.getModel();
@@ -46,13 +44,13 @@ public class LinkerFrame extends Frame {
 			model.fireTableRowsInserted(0, model.getRowCount());
 		}
 	}
-	
+
 	private class Remove extends Action {
 
 		private static final long serialVersionUID = -8727965290316548686L;
-		
-		private final JTable table; 
-		
+
+		private final JTable table;
+
 		public Remove(JTable table) {
 			super("Remove", "res\\remove.png", "res\\remove_big.png");
 			this.table = table;
@@ -65,30 +63,30 @@ public class LinkerFrame extends Frame {
 			model.fireTableRowsDeleted(0, model.getRowCount());
 		}
 	}
-	
+
 	private class Ok extends Action {
 
 		private static final long serialVersionUID = -2799992289456640097L;
-		
+
 		private final JTable table;
 
 		public Ok(JTable table) {
 			super("OK", "res\\ok.png", "res\\ok_big.png");
 			this.table = table;
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (((LinkerModel) table.getModel()).isEmptyTransitions()) {
 				showWarning("Empty lines!");
 			} else {
-				LinkerFrame.this.observer.update(null, 
+				observer.update(null,
 						((LinkerModel) table.getModel()).getData());
 				setVisible(false);
 			}
 		}
 	}
-	
+
 	private class Cancel extends Action {
 
 		private static final long serialVersionUID = -7291044240556796475L;
@@ -102,27 +100,27 @@ public class LinkerFrame extends Frame {
 			setVisible(false);
 		}
 	}
-	
+
 	private class LinkerModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = 490187158106065021L;
-		
+
 		private final List<int[]> data = new ArrayList<int[]>();
 
 		public LinkerModel(int[][] transitions) {
 			for (int i = 0; i < transitions.length; i++) {
 				for (int j = i; j < transitions[i].length; j++) {
 					if (transitions[i][j] == 1) {
-						data.add(new int[] {i, j});
+						data.add(new int[] { i, j });
 					}
 				}
 			}
 		}
-		
+
 		public List<int[]> getData() {
 			return data;
 		}
-		
+
 		public boolean isEmptyTransitions() {
 			for (int[] i : data) {
 				if (i.length == 0) {
@@ -131,7 +129,7 @@ public class LinkerFrame extends Frame {
 			}
 			return false;
 		}
-		
+
 		@Override
 		public int getRowCount() {
 			return data.size();
@@ -173,49 +171,46 @@ public class LinkerFrame extends Frame {
 					row = new int[2];
 				}
 				row[columnIndex] = Integer.parseInt((String) value);
-				data.set(rowIndex, row); 
+				data.set(rowIndex, row);
 			}
 		}
-		
+
 		public void addRow() {
 			data.add(new int[] {});
 		}
-		
+
 		public void removeRow(int index) {
-			if (index >= 0 && index < getRowCount()) {
+			if ((index >= 0) && (index < getRowCount())) {
 				data.remove(index);
 			}
 		}
 	}
-	
+
 	private static final long serialVersionUID = 2071440340003245390L;
-	
+
 	private final JTable table = new JTable();
-	
+
 	private final JButton add = new JButton(new Add(table));
-	
+
 	private final JButton remove = new JButton(new Remove(table));
-	
+
 	private final JButton ok = new JButton(new Ok(table));
-	
+
 	private final JButton cancel = new JButton(new Cancel());
-	
+
 	private final Observer observer;
 
 	public LinkerFrame(int[][] transtions, Observer o) {
 		super("Links");
-		this.observer = o;
+		observer = o;
 		setLayout(new BorderLayout());
 		setResizable(false);
 		setAlwaysOnTop(true);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		add(createContent(), BorderLayout.CENTER);
 		init(transtions);
 		pack();
-		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		double x = (d.getWidth() - getWidth())/2;
-		double y = (d.getHeight() - getHeight())/2;
-		setLocation((int) x, (int) y);
+		moveToScreenCenter();
 	}
 
 	private void init(int[][] transtions) {

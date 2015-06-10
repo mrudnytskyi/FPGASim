@@ -1,9 +1,7 @@
 package gui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.util.Observer;
 
@@ -11,10 +9,10 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
 
@@ -25,13 +23,13 @@ import javax.swing.table.TableColumnModel;
  * @version 0.1 24.03.2015
  */
 public class PropertiesFrame extends Frame {
-	
+
 	private class Ok extends Action {
 
 		private static final long serialVersionUID = -8517570522823621277L;
 
-		private JTable table;
-		
+		private final JTable table;
+
 		public Ok(JTable table) {
 			super("OK", "res\\ok.png", "res\\ok_big.png");
 			this.table = table;
@@ -42,13 +40,13 @@ public class PropertiesFrame extends Frame {
 			if (((PropertiesModel) table.getModel()).isEmptyProperties()) {
 				showWarning("Empty lines!");
 			} else {
-				PropertiesFrame.this.observer.update(null, 
+				observer.update(null,
 						((PropertiesModel) table.getModel()).getData());
 				setVisible(false);
 			}
 		}
 	}
-	
+
 	private class Cancel extends Action {
 
 		private static final long serialVersionUID = -5138288617849048408L;
@@ -62,17 +60,17 @@ public class PropertiesFrame extends Frame {
 			setVisible(false);
 		}
 	}
-	
+
 	private class PropertiesModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = -3160038264112570310L;
 
 		private final int[] data;
-		
+
 		public PropertiesModel(int[] data) {
 			this.data = data;
 		}
-		
+
 		public boolean isEmptyProperties() {
 			for (int i : data) {
 				if (i == -1) {
@@ -81,7 +79,7 @@ public class PropertiesFrame extends Frame {
 			}
 			return false;
 		}
-		
+
 		public int[] getData() {
 			return data;
 		}
@@ -95,7 +93,7 @@ public class PropertiesFrame extends Frame {
 		public int getColumnCount() {
 			return 2;
 		}
-		
+
 		@Override
 		public String getColumnName(int columnIndex) {
 			if (columnIndex == 0) {
@@ -104,7 +102,7 @@ public class PropertiesFrame extends Frame {
 				return "Hardware Task";
 			}
 		}
-		
+
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
 			return columnIndex == 1 ? true : false;
@@ -118,7 +116,7 @@ public class PropertiesFrame extends Frame {
 				return data[rowIndex];
 			}
 		}
-		
+
 		@Override
 		public void setValueAt(Object value, int rowIndex, int columnIndex) {
 			if (columnIndex == 1) {
@@ -128,31 +126,28 @@ public class PropertiesFrame extends Frame {
 	}
 
 	private static final long serialVersionUID = 5743609407800956841L;
-	
+
 	private final JTable table = new JTable();
-	
+
 	private final JButton ok = new JButton(new Ok(table));
-	
+
 	private final JButton cancel = new JButton(new Cancel());
-	
+
 	private final Observer observer;
 
 	public PropertiesFrame(int tasksCount, int[] data, Observer o) {
 		super("Properties");
-		this.observer = o;
+		observer = o;
 		setLayout(new BorderLayout());
 		setResizable(false);
 		setAlwaysOnTop(true);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		add(createContent(), BorderLayout.CENTER);
 		init(tasksCount, data);
 		pack();
-		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		double x = (d.getWidth() - getWidth())/2;
-		double y = (d.getHeight() - getHeight())/2;
-		setLocation((int) x, (int) y);
+		moveToScreenCenter();
 	}
-	
+
 	private void init(int tasksCount, int[] data) {
 		table.setModel(new PropertiesModel(data));
 		String[] items = new String[tasksCount];
@@ -166,7 +161,7 @@ public class PropertiesFrame extends Frame {
 			tcm.getColumn(i).setCellEditor(editor);
 		}
 	}
-	
+
 	private JPanel createContent() {
 		JScrollPane pane = new JScrollPane(table);
 		JPanel bottom = new JPanel(new GridLayout(1, 2, 50, 20));
