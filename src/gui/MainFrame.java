@@ -22,7 +22,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import smth.Library;
+import sim.Library;
 
 import com.thoughtworks.xstream.XStream;
 

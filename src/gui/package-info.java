@@ -1,4 +1,5 @@
 /**
+ * Package, containing GUI classes for application.
  * 
  * @author Mir4ik
  * @version 0.1 24.03.2015

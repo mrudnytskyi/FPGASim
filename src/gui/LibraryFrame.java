@@ -14,7 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.WindowConstants;
 
-import smth.Library;
+import sim.Library;
 
 import com.thoughtworks.xstream.XStream;
 

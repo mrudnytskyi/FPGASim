@@ -1,4 +1,4 @@
-package smth;
+package sim;
 
 import java.io.File;
 
@@ -7,8 +7,9 @@ import javax.swing.table.AbstractTableModel;
 import com.thoughtworks.xstream.XStream;
 
 /**
+ * Class represents library of hardware tasks.
  * 
- * @author Myroslav Rudnytskyi
+ * @author Mir4ik
  * @version 0.1 10.06.2015
  */
 public class Library extends AbstractTableModel {

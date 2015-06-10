@@ -1,4 +1,4 @@
-package smth;
+package sim;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Class represents state of system.
  * 
- * @author Myroslav Rudnytskyi
+ * @author Mir4ik
  * @version 0.1 16.05.2015
  */
 public class HardwareSystem {

@@ -21,7 +21,7 @@ import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.NumberFormatter;
 
-import smth.Library;
+import sim.Library;
 
 /**
  * 

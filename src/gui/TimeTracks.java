@@ -1,6 +1,7 @@
-package smth;
+package gui;
 
 /**
+ * Class represents command-line (text-based) version of Gant's diagram.
  * 
  * @author Mir4ik
  * @version 0.1 09.05.2015

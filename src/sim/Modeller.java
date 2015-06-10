@@ -1,4 +1,6 @@
-package smth;
+package sim;
+
+import gui.TimeTracks;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,11 +14,12 @@ import java.util.Random;
 import com.thoughtworks.xstream.XStream;
 
 /**
+ * Class for modelling.
  * 
  * @author Mir4ik
  * @version 0.1 09.05.2015
  */
-public class Run {
+public class Modeller {
 
 	private static List<Task>[] all;
 
@@ -26,10 +29,14 @@ public class Run {
 	private static final int NETWORK_MAX_RANDOM_TIME = 5;
 
 	public static void main(String[] args) {
+		Modeller.modell();
+	}
+
+	public static void modell() {
 		// get data
-		List<Task>[] levelsTasks = Run.makeTasks();
-		List<Task> allTasks = Run.makeAll();
-		System.out.println(Run.makeTasks1());
+		List<Task>[] levelsTasks = Modeller.makeTasks();
+		List<Task> allTasks = Modeller.makeAll();
+		System.out.println(Modeller.makeTasks1());
 
 		int tasksCount = allTasks.size();
 		int level = 0;
@@ -54,25 +61,28 @@ public class Run {
 					break;
 				case TSK_LIB:
 					int libTime =
-							t.getBytestreamWords() * Run.MEMORY_ACCESS_TIME;
+							t.getBytestreamWords()
+									* Modeller.MEMORY_ACCESS_TIME;
 					int randTime =
-							new Random().nextInt(Run.NETWORK_MAX_RANDOM_TIME);
+							new Random()
+									.nextInt(Modeller.NETWORK_MAX_RANDOM_TIME);
 					time.addSearchingAndLoading(t.getId(), libTime + randTime);
-					time.addLoadingLastWord(t.getId(), Run.LOAD_LAST_TIME);
+					time.addLoadingLastWord(t.getId(), Modeller.LOAD_LAST_TIME);
 					HardwareSystem.load(t.getHwN());
 					break;
 				case TSK_MEM:
 					System.err.println("M");
 					int memTime =
-							t.getBytestreamWords() * Run.MEMORY_ACCESS_TIME;
+							t.getBytestreamWords()
+									* Modeller.MEMORY_ACCESS_TIME;
 					time.addSearchingAndLoading(t.getId(), memTime);
-					time.addLoadingLastWord(t.getId(), Run.LOAD_LAST_TIME);
+					time.addLoadingLastWord(t.getId(), Modeller.LOAD_LAST_TIME);
 					HardwareSystem.load(t.getHwN());
 					break;
 				}
 				// TODO ask?
 				time.addLoadingData(t.getId(), t.getDataCount()
-						* Run.LOAD_DATUM_TIME);
+						* Modeller.LOAD_DATUM_TIME);
 
 				working.add(t);
 			}
@@ -93,7 +103,7 @@ public class Run {
 				finished.clear(t.getId());
 			}
 			// write step results
-			Run.printDivider();
+			Modeller.printDivider();
 			System.out.println(time);
 			// prepare to next iteration
 			if (level < (levelsTasks.length - 3)) {
@@ -115,27 +125,27 @@ public class Run {
 	//TODO remake data getting and integrate into GUI
 	private static List<Task> makeAll() {
 		List<Task> a = new ArrayList<Task>();
-		a.addAll(Run.all[0]);
-		a.addAll(Run.all[1]);
-		a.addAll(Run.all[2]);
+		a.addAll(Modeller.all[0]);
+		a.addAll(Modeller.all[1]);
+		a.addAll(Modeller.all[2]);
 		return a;
 	}
 
 	@SuppressWarnings("unchecked")
 	private static List<Task>[] makeTasks() {
-		Run.all = new LinkedList[5];
+		Modeller.all = new LinkedList[5];
 		List<Task> level1 = new LinkedList<Task>();
 		level1.add(new Task(0));
-		Run.all[0] = level1;
+		Modeller.all[0] = level1;
 		List<Task> level2 = new LinkedList<Task>();
 		level2.add(new Task(1));
 		level2.add(new Task(2));
-		Run.all[1] = level2;
+		Modeller.all[1] = level2;
 		List<Task> level3 = new LinkedList<Task>();
 		level3.add(new Task(0));
 		level3.add(new Task(1));
-		Run.all[2] = level3;
-		return Run.all;
+		Modeller.all[2] = level3;
+		return Modeller.all;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -151,7 +161,6 @@ public class Run {
 			List<Task> level = new LinkedList<Task>();
 			//for (int element : nam) {
 			//System.out.println(new Task(element));
-
 			for (int k = 0; k < trans.length; k++) {
 				for (int j = k; j < trans[k].length; j++) {
 					if (trans[k][j] == 1) {
