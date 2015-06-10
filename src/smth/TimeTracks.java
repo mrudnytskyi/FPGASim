@@ -3,7 +3,7 @@ package smth;
 /**
  * 
  * @author Mir4ik
- * @version 0.1 9 трав. 2015
+ * @version 0.1 09.05.2015
  */
 public class TimeTracks {
 
@@ -12,7 +12,7 @@ public class TimeTracks {
 	public TimeTracks(int tracksCount) {
 		data = new StringBuilder[tracksCount];
 		for (int i = 0; i < data.length; i++) {
-			data[i] = new StringBuilder(100);
+			data[i] = new StringBuilder();
 		}
 	}
 

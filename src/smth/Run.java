@@ -1,16 +1,20 @@
 package smth;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import com.thoughtworks.xstream.XStream;
+
 /**
  * 
  * @author Mir4ik
- * @version 0.1 9 трав. 2015
+ * @version 0.1 09.05.2015
  */
 public class Run {
 
@@ -25,6 +29,7 @@ public class Run {
 		// get data
 		List<Task>[] levelsTasks = Run.makeTasks();
 		List<Task> allTasks = Run.makeAll();
+		System.out.println(Run.makeTasks1());
 
 		int tasksCount = allTasks.size();
 		int level = 0;
@@ -42,12 +47,10 @@ public class Run {
 				time.addWaitingToLongestLoading(t.getId());
 
 				switch (HardwareSystem.findConfiguration(t)) {
-				case TSK_FPGA_UNUSE:
-					HardwareSystem.recalculateBonus();
-					break;
-				case TSK_FPGA_USE:
-					//TODO make
-					System.err.println("Not impl");
+				case TSK_FPGA:
+					System.err.println("F");
+					// TODO load based on time or on FPGA size?
+					HardwareSystem.load(t.getHwN());
 					break;
 				case TSK_LIB:
 					int libTime =
@@ -56,16 +59,18 @@ public class Run {
 							new Random().nextInt(Run.NETWORK_MAX_RANDOM_TIME);
 					time.addSearchingAndLoading(t.getId(), libTime + randTime);
 					time.addLoadingLastWord(t.getId(), Run.LOAD_LAST_TIME);
-					HardwareSystem.load(t.getId());
+					HardwareSystem.load(t.getHwN());
 					break;
 				case TSK_MEM:
+					System.err.println("M");
 					int memTime =
 							t.getBytestreamWords() * Run.MEMORY_ACCESS_TIME;
 					time.addSearchingAndLoading(t.getId(), memTime);
 					time.addLoadingLastWord(t.getId(), Run.LOAD_LAST_TIME);
-					HardwareSystem.load(t.getId());
+					HardwareSystem.load(t.getHwN());
 					break;
 				}
+				// TODO ask?
 				time.addLoadingData(t.getId(), t.getDataCount()
 						* Run.LOAD_DATUM_TIME);
 
@@ -101,7 +106,7 @@ public class Run {
 
 	public static void printDivider() {
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < 80; i++) {
+		for (int i = 0; i < 111; i++) {
 			sb.append("=");
 		}
 		System.out.println(sb.toString());
@@ -128,8 +133,37 @@ public class Run {
 		Run.all[1] = level2;
 		List<Task> level3 = new LinkedList<Task>();
 		level3.add(new Task(0));
-		level3.add(new Task(4));
+		level3.add(new Task(1));
 		Run.all[2] = level3;
 		return Run.all;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static List<Task>[] makeTasks1() {
+		Object[] memento =
+				(Object[]) new XStream().fromXML(new File("file.xml"));
+		int[][] trans = (int[][]) memento[0];
+		int[] nam = (int[]) memento[1];
+
+		List[] allFucking = new LinkedList[100];
+		int coun = 0;
+		for (int i = 0; i < allFucking.length; i++) {
+			List<Task> level = new LinkedList<Task>();
+			//for (int element : nam) {
+			//System.out.println(new Task(element));
+
+			for (int k = 0; k < trans.length; k++) {
+				for (int j = k; j < trans[k].length; j++) {
+					if (trans[k][j] == 1) {
+						level.add(new Task(nam[k]));
+					}
+				}
+			}
+
+			//}
+			allFucking[i] = level;
+			coun++;
+		}
+		return Arrays.copyOfRange(allFucking, 0, coun);
 	}
 }
