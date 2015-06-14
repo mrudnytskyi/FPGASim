@@ -2,16 +2,12 @@ package sim;
 
 import gui.TimeTracks;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-
-import com.thoughtworks.xstream.XStream;
 
 /**
  * Class for modelling.
@@ -32,11 +28,10 @@ public class Modeller {
 		Modeller.modell();
 	}
 
-	public static void modell() {
+	public static TimeTracks modell() {
 		// get data
 		List<Task>[] levelsTasks = Modeller.makeTasks();
 		List<Task> allTasks = Modeller.makeAll();
-		System.out.println(Modeller.makeTasks1());
 
 		int tasksCount = allTasks.size();
 		int level = 0;
@@ -112,6 +107,7 @@ public class Modeller {
 			}
 		}
 		System.out.println("Simulation ended");
+		return time;
 	}
 
 	public static void printDivider() {
@@ -146,33 +142,5 @@ public class Modeller {
 		level3.add(new Task(1));
 		Modeller.all[2] = level3;
 		return Modeller.all;
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static List<Task>[] makeTasks1() {
-		Object[] memento =
-				(Object[]) new XStream().fromXML(new File("file.xml"));
-		int[][] trans = (int[][]) memento[0];
-		int[] nam = (int[]) memento[1];
-
-		List[] allFucking = new LinkedList[100];
-		int coun = 0;
-		for (int i = 0; i < allFucking.length; i++) {
-			List<Task> level = new LinkedList<Task>();
-			//for (int element : nam) {
-			//System.out.println(new Task(element));
-			for (int k = 0; k < trans.length; k++) {
-				for (int j = k; j < trans[k].length; j++) {
-					if (trans[k][j] == 1) {
-						level.add(new Task(nam[k]));
-					}
-				}
-			}
-
-			//}
-			allFucking[i] = level;
-			coun++;
-		}
-		return Arrays.copyOfRange(allFucking, 0, coun);
 	}
 }

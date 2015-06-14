@@ -5,9 +5,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -23,6 +20,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import sim.Library;
+import sim.Modeller;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -187,46 +185,8 @@ public class MainFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			//TODO bug when empty
-			int[][] trans = graph.createTransitions();
-			int[] props = graph.getPropertiesData();
-			int[][] lib = library.getData();
-
-			List<double[]> times = new LinkedList<double[]>();
-			times.add(new double[] { 0, lib[props[0]][1] });
-			for (int i = 0; i < (trans.length - 1); i++) {
-				if (!MainFrame.contains(times, i)) {
-					continue;
-				}
-				List<Integer> connectedList = new LinkedList<Integer>();
-				for (int j = 0; j < trans[i].length; j++) {
-					if (trans[i][j] == 1) {
-						connectedList.add(j);
-					}
-				}
-				Integer[] connected =
-						connectedList
-								.toArray(new Integer[connectedList.size()]);
-				double[] connectedTime = new double[connected.length];
-				for (int k = 0; k < connectedTime.length; k++) {
-					connectedTime[k] = lib[props[connected[k]]][1];
-				}
-				int max = 0;
-				double maxTime = 0;
-				for (int k = 0; k < connectedTime.length; k++) {
-					if (connectedTime[k] > maxTime) {
-						max = k;
-						maxTime = connectedTime[k];
-					}
-				}
-				times.add(new double[] { connected[max], connectedTime[max] });
-			}
-			StringBuilder sb = new StringBuilder();
-			for (double[] array : times) {
-				sb.append(Arrays.toString(array));
-				sb.append(" -> ");
-			}
-			showInfo(sb.toString());
+			tabbed.setComponentAt(1, new JScrollPane(new GantDiagramPanel(
+					Modeller.modell())));
 		}
 	}
 
@@ -267,6 +227,8 @@ public class MainFrame extends Frame {
 
 	private final Library library = new Library();
 
+	private final JTabbedPane tabbed = new JTabbedPane();
+
 	public MainFrame() {
 		super("FPGA Sym");
 		setLayout(new BorderLayout());
@@ -279,7 +241,6 @@ public class MainFrame extends Frame {
 	}
 
 	private JPanel createContent() {
-		JTabbedPane tabbed = new JTabbedPane();
 		tabbed.addTab("Graph", new ImageIcon("res\\algo.png"), new JScrollPane(
 				graph));
 		tabbed.addTab("Gant", new ImageIcon("res\\gant.png"), null);
@@ -327,16 +288,6 @@ public class MainFrame extends Frame {
 		toolBar.addSeparator();
 		toolBar.add(new CalculateMax());
 		return toolBar;
-	}
-
-	private static boolean contains(List<double[]> list, int i) {
-		boolean is = false;
-		for (double[] array : list) {
-			if (array[0] == i) {
-				is = true;
-			}
-		}
-		return is;
 	}
 
 	public static void main(String[] args) {

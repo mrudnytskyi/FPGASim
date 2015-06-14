@@ -98,4 +98,13 @@ public class TimeTracks {
 			data[track].append(' ');
 		}
 	}
+
+	public int getTracksCount() {
+		return data.length;
+	}
+
+	public String getTrack(int track) {
+		checkBounds(track);
+		return data[track].toString();
+	}
 }
