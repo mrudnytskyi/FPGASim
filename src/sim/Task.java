@@ -57,4 +57,10 @@ public class Task implements Comparable<Task> {
 		}
 		return 0;
 	}
+
+	@Override
+	public String toString() {
+		return String.join("", "hardwareNum=", String.valueOf(hwN), " id=",
+				String.valueOf(id));
+	}
 }

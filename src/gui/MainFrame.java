@@ -5,6 +5,10 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -21,6 +25,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import sim.Library;
 import sim.Modeller;
+import sim.Task;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -175,18 +180,26 @@ public class MainFrame extends Frame {
 		}
 	}
 
-	private class CalculateMax extends Action {
+	private class Simulate extends Action {
 
 		private static final long serialVersionUID = 7730347825572796898L;
 
-		public CalculateMax() {
-			super("Calculate", "res\\calc.png", "res\\calc_big.png");
+		public Simulate() {
+			super("Simulate", "res\\calc.png", "res\\calc_big.png");
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			//TODO bug when empty
+			List<Task>[] levelsTasks = makeTasks();
+
+			List<Task> allTasks = new ArrayList<Task>();
+			for (List<Task> levelsTask : levelsTasks) {
+				allTasks.addAll(levelsTask);
+			}
+
 			tabbed.setComponentAt(1, new JScrollPane(new GantDiagramPanel(
-					Modeller.modell())));
+					Modeller.modell(levelsTasks, allTasks))));
 		}
 	}
 
@@ -267,7 +280,7 @@ public class MainFrame extends Frame {
 		library.add(new Edit());
 		menu.add(library);
 		JMenu calculations = new JMenu("Calculations");
-		calculations.add(new CalculateMax());
+		calculations.add(new Simulate());
 		menu.add(calculations);
 		menu.add(Box.createHorizontalGlue());
 		JMenu help = new JMenu("?");
@@ -286,8 +299,55 @@ public class MainFrame extends Frame {
 		toolBar.add(new AddEdge());
 		toolBar.add(new Properties());
 		toolBar.addSeparator();
-		toolBar.add(new CalculateMax());
+		toolBar.add(new Simulate());
 		return toolBar;
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Task>[] makeTasks() {
+		int[][] transitions = graph.createTransitions();
+		int[] hwNumbers = graph.getPropertiesData();
+
+		int tasksCounter = 0;
+		int levelsCounter = 0;
+		List<List<Task>> tasks = new ArrayList<List<Task>>();
+
+		List<Task> firstLevel = new ArrayList<Task>();
+		firstLevel.add(new Task(hwNumbers[0]));
+		tasksCounter++;
+		tasks.add(firstLevel);
+		levelsCounter++;
+
+		while (tasksCounter != transitions.length) {
+			List<Task> level = new ArrayList<Task>();
+			List<Task> prevLevel = tasks.get(levelsCounter - 1);
+
+			Set<Integer> visited = new HashSet<Integer>();
+			for (int i = 0; i < prevLevel.size(); i++) {
+				int id = prevLevel.get(i).getId();
+				int[] transitionsLine = transitions[id];
+
+				for (int j = 0; j < transitionsLine.length; j++) {
+					if ((transitionsLine[j] == 1)
+							&& !visited.contains(new Integer(j))) {
+						level.add(new Task(hwNumbers[j]));
+						tasksCounter++;
+						visited.add(j);
+					}
+				}
+			}
+
+			tasks.add(level);
+			levelsCounter++;
+		}
+
+		List<Task>[] result = new ArrayList[tasks.size()];
+		int i = 0;
+		for (List<Task> lst : tasks) {
+			result[i] = lst;
+			i++;
+		}
+		return result;
 	}
 
 	public static void main(String[] args) {
