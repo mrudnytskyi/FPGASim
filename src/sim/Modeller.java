@@ -2,6 +2,9 @@ package sim;
 
 import gui.TimeTracks;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
@@ -41,11 +44,12 @@ public class Modeller {
 
 				switch (HardwareSystem.findConfiguration(t)) {
 				case TSK_FPGA:
-					System.err.println("F");
+					System.out.println("F " + t);
 					// TODO load based on time or on FPGA size?
 					HardwareSystem.load(t.getHwN());
 					break;
 				case TSK_LIB:
+					System.out.println("L " + t);
 					int libTime =
 							t.getBytestreamWords()
 									* Modeller.MEMORY_ACCESS_TIME;
@@ -57,7 +61,7 @@ public class Modeller {
 					HardwareSystem.load(t.getHwN());
 					break;
 				case TSK_MEM:
-					System.err.println("M");
+					System.out.println("M " + t);
 					int memTime =
 							t.getBytestreamWords()
 									* Modeller.MEMORY_ACCESS_TIME;
@@ -87,24 +91,22 @@ public class Modeller {
 				time.addCounting(t.getId(), t.getWorkingTime());
 				finished.clear(t.getId());
 			}
-			// write step results
-			Modeller.printDivider();
-			System.out.println(time);
 			// prepare to next iteration
 			if (level < (levelsTasks.length - 1)) {
 				currentLevel = levelsTasks[++level];
 				Collections.sort(currentLevel);
+			} else {
+				Modeller.writeGantt(time);
 			}
 		}
-		System.out.println("Simulation ended");
 		return time;
 	}
 
-	public static void printDivider() {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < 111; i++) {
-			sb.append("=");
+	private static void writeGantt(TimeTracks time) {
+		try {
+			Files.write(Paths.get("model.txt"), time.toString().getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		System.out.println(sb.toString());
 	}
 }
