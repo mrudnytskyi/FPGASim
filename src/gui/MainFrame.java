@@ -190,7 +190,7 @@ public class MainFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			//TODO bug when empty
+			//TODO bug when empty, bug with scrollpane
 			List<Task>[] levelsTasks = makeTasks();
 
 			List<Task> allTasks = new ArrayList<Task>();

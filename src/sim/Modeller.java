@@ -46,7 +46,7 @@ public class Modeller {
 				case TSK_FPGA:
 					System.out.println("F " + t);
 					// TODO load based on time or on FPGA size?
-					HardwareSystem.load(t.getHwN());
+					HardwareSystem.load(t);
 					break;
 				case TSK_LIB:
 					System.out.println("L " + t);
@@ -58,7 +58,7 @@ public class Modeller {
 									.nextInt(Modeller.NETWORK_MAX_RANDOM_TIME);
 					time.addSearchingAndLoading(t.getId(), libTime + randTime);
 					time.addLoadingLastWord(t.getId(), Modeller.LOAD_LAST_TIME);
-					HardwareSystem.load(t.getHwN());
+					HardwareSystem.load(t);
 					break;
 				case TSK_MEM:
 					System.out.println("M " + t);
@@ -67,7 +67,7 @@ public class Modeller {
 									* Modeller.MEMORY_ACCESS_TIME;
 					time.addSearchingAndLoading(t.getId(), memTime);
 					time.addLoadingLastWord(t.getId(), Modeller.LOAD_LAST_TIME);
-					HardwareSystem.load(t.getHwN());
+					HardwareSystem.load(t);
 					break;
 				}
 				time.addLoadingData(t.getId(), t.getDataCount()

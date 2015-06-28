@@ -60,7 +60,7 @@ public class Task implements Comparable<Task> {
 
 	@Override
 	public String toString() {
-		return String.join("", "hardwareNum=", String.valueOf(hwN), " id=",
+		return String.join("", "hwN = ", String.valueOf(hwN), " id = ",
 				String.valueOf(id));
 	}
 }

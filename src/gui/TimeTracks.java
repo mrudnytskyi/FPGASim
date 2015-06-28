@@ -45,30 +45,6 @@ public class TimeTracks {
 		}
 	}
 
-	private void requiredNotNegative(int i) {
-		if (i < 0) {
-			throw new IllegalArgumentException();
-		}
-	}
-
-	private void checkBounds(int i) {
-		requiredNotNegative(i);
-		if (i >= data.length) {
-			throw new IllegalArgumentException();
-		}
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < data.length; i++) {
-			sb.append(i);
-			sb.append(data[i]);
-			sb.append(System.lineSeparator());
-		}
-		return sb.toString();
-	}
-
 	public void addWaitingToLongestLoading(int track) {
 		checkBounds(track);
 		int maxSize = 0;
@@ -106,5 +82,29 @@ public class TimeTracks {
 	public String getTrack(int track) {
 		checkBounds(track);
 		return data[track].toString();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < data.length; i++) {
+			sb.append(i);
+			sb.append(data[i]);
+			sb.append(System.lineSeparator());
+		}
+		return sb.toString();
+	}
+
+	private void requiredNotNegative(int i) {
+		if (i < 0) {
+			throw new IllegalArgumentException();
+		}
+	}
+
+	private void checkBounds(int i) {
+		requiredNotNegative(i);
+		if (i >= data.length) {
+			throw new IllegalArgumentException();
+		}
 	}
 }

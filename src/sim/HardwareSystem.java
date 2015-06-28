@@ -3,8 +3,6 @@ package sim;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Class represents state of system.
@@ -22,11 +20,21 @@ public class HardwareSystem {
 
 	private static final int MAX_BONUS = 10;
 
-	private static List<Integer> FPGA = new ArrayList<Integer>();
+	/**
+	 * contains hwN
+	 */
+	private static ArrayList<Integer> FPGA = new ArrayList<Integer>();
 
-	private static Set<Integer> memory = new HashSet<Integer>();
+	//TODO memory make max size, do not ignore adding
+	/**
+	 * contains hwN, set is used to ignore adding 2 same tasks
+	 */
+	private static HashSet<Integer> memory = new HashSet<Integer>();
 
-	private static List<Integer> bonuses = new ArrayList<Integer>();
+	/**
+	 * contains bonus points. Index bonus = index hwN in FPGA
+	 */
+	private static ArrayList<Integer> bonuses = new ArrayList<Integer>();
 
 	public static State findConfiguration(Task task) {
 		if (HardwareSystem.FPGA.contains(task.getHwN())) {
@@ -40,7 +48,7 @@ public class HardwareSystem {
 		}
 	}
 
-	public static void load(int hwTsk) {
+	public static void load(Task task) {
 		if (HardwareSystem.FPGA.size() == HardwareSystem.FPGA_MAX_SIZE) {
 			int smallestBonus = Collections.min(HardwareSystem.bonuses);
 			int smallestBonusIndex =
@@ -48,11 +56,9 @@ public class HardwareSystem {
 							smallestBonus);
 			int smallestBonusHwN = HardwareSystem.FPGA.get(smallestBonusIndex);
 			HardwareSystem.FPGA.remove(new Integer(smallestBonusHwN));
-			HardwareSystem.bonuses.remove(new Integer(smallestBonus));
-			//TODO there were 2 same tasks. Ignore adding 2 same to memory?
-			HardwareSystem.memory.add(smallestBonusHwN);
+			HardwareSystem.bonuses.remove(smallestBonusIndex);
 		}
-		HardwareSystem.FPGA.add(hwTsk);
+		HardwareSystem.FPGA.add(task.getHwN());
 		for (int i = 0; i < HardwareSystem.bonuses.size(); i++) {
 			HardwareSystem.bonuses.set(i, HardwareSystem.bonuses.get(i) - 1);
 		}
