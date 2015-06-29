@@ -305,6 +305,10 @@ public class MainFrame extends Frame {
 
 	@SuppressWarnings("unchecked")
 	private List<Task>[] makeTasks() {
+		//TODO bug when *3    *4    *5
+		//                 *6        
+		//                       *7
+		// 7 is added before 6, but is connected
 		int[][] transitions = graph.createTransitions();
 		int[] hwNumbers = graph.getPropertiesData();
 

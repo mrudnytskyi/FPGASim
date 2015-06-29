@@ -45,7 +45,7 @@ public class Modeller {
 				switch (HardwareSystem.findConfiguration(t)) {
 				case TSK_FPGA:
 					System.out.println("F " + t);
-					// TODO load based on time or on FPGA size?
+					// TODO make when 2 same tasks at same time
 					HardwareSystem.load(t);
 					break;
 				case TSK_LIB:
@@ -70,6 +70,7 @@ public class Modeller {
 					HardwareSystem.load(t);
 					break;
 				}
+				//TODO loading before start working?
 				time.addLoadingData(t.getId(), t.getDataCount()
 						* Modeller.LOAD_DATUM_TIME);
 
