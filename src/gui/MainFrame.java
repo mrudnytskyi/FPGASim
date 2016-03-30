@@ -39,7 +39,13 @@ public class MainFrame extends Frame {
 	}
 
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> new MainFrame().setVisible(true));
+		SwingUtilities.invokeLater(() -> {
+			new MainFrame().setVisible(true);
+			Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+				showError(e);
+				e.printStackTrace();
+			});
+		});
 	}
 
 	private JPanel createContent() {

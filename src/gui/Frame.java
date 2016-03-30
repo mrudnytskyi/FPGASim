@@ -1,12 +1,9 @@
 package gui;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import javax.swing.*;
+import java.awt.*;
 
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+import static javax.swing.JOptionPane.*;
 
 /**
  * Abstract class for representing frames in application. Please, make sure,
@@ -19,70 +16,35 @@ import javax.swing.JOptionPane;
  */
 public abstract class Frame extends JFrame {
 
-	/**
-	 * Abstract class for representing actions. Please, make sure, that all of
-	 * them (in menu items, buttons and toolbar buttons) use it as superclass.
-	 * <p>
-	 * Class uses default implementation of {@link javax.swing.Action} interface
-	 * - abstract class {@link AbstractAction}.
-	 * 
-	 * @author Mir4ik
-	 * @version 0.1 18.03.2015
-	 */
-	protected abstract class Action extends AbstractAction {
-
-		private static final long serialVersionUID = 3675827226774345460L;
-
-		/**
-		 * Note, that constructor can take <code>null</code> values.
-		 * 
-		 * @param name
-		 *            action name
-		 * @param smallIcon
-		 *            path to small image
-		 * @param largeIcon
-		 *            path to large image
-		 */
-		public Action(String name, String smallIcon, String largeIcon) {
-			putValue(javax.swing.Action.NAME, name);
-			putValue(javax.swing.Action.SMALL_ICON, new ImageIcon(smallIcon));
-			putValue(javax.swing.Action.LARGE_ICON_KEY,
-					new ImageIcon(largeIcon));
-		}
-	}
-
 	private static final long serialVersionUID = 1581013918976729599L;
 
 	public Frame(String title) {
 		super(title);
 	}
 
-	public void showError(String msg) {
-		String path = "res\\error_big.png";
-		JOptionPane.showMessageDialog(this, msg, "Error",
-				JOptionPane.ERROR_MESSAGE, new ImageIcon(path));
+	public static void showError(Throwable e) {
+		showMessageDialog(null, e.getMessage(), "Error " + e.getClass().getSimpleName(), ERROR_MESSAGE, icon("error_big"));
 	}
 
-	public void showInfo(String msg) {
-		String path = "res\\info_big.png";
-		JOptionPane.showMessageDialog(this, msg, "Info",
-				JOptionPane.INFORMATION_MESSAGE, new ImageIcon(path));
+	public static void showError(String msg) {
+		showMessageDialog(null, msg, "Error", ERROR_MESSAGE, icon("error_big"));
 	}
 
-	public boolean showQuestion(String msg) {
-		String path = "res\\question_big.png";
-		if (JOptionPane.showConfirmDialog(this, msg, "Question",
-				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
-				new ImageIcon(path)) == JOptionPane.YES_OPTION) {
-			return true;
-		}
-		return false;
+	public static void showInfo(String msg) {
+		showMessageDialog(null, msg, "Info", INFORMATION_MESSAGE, icon("info_big"));
 	}
 
-	public void showWarning(String msg) {
-		String path = "res\\warning_big.png";
-		JOptionPane.showMessageDialog(this, msg, "Warning",
-				JOptionPane.WARNING_MESSAGE, new ImageIcon(path));
+	public static boolean showQuestion(String msg) {
+		int result = showConfirmDialog(null, msg, "Question", YES_NO_OPTION, QUESTION_MESSAGE, icon("question_big"));
+		return result == YES_OPTION;
+	}
+
+	public static void showWarning(String msg) {
+		showMessageDialog(null, msg, "Warning", WARNING_MESSAGE, icon("warning_big"));
+	}
+
+	private static ImageIcon icon(String iconName) {
+		return new ImageIcon("res\\" + iconName + ".png");
 	}
 
 	/**
@@ -93,5 +55,33 @@ public abstract class Frame extends JFrame {
 		double x = (d.getWidth() - getWidth()) / 2;
 		double y = (d.getHeight() - getHeight()) / 2;
 		setLocation((int) x, (int) y);
+	}
+
+	/**
+	 * Abstract class for representing actions. Please, make sure, that all of
+	 * them (in menu items, buttons and toolbar buttons) use it as superclass.
+	 * <p>
+	 * Class uses default implementation of {@link javax.swing.Action} interface
+	 * - abstract class {@link AbstractAction}.
+	 *
+	 * @author Mir4ik
+	 * @version 0.1 18.03.2015
+	 */
+	protected abstract class Action extends AbstractAction {
+
+		private static final long serialVersionUID = 3675827226774345460L;
+
+		/**
+		 * Note, that constructor can take <code>null</code> values.
+		 *
+		 * @param name      action name
+		 * @param smallIcon path to small image
+		 * @param largeIcon path to large image
+		 */
+		public Action(String name, String smallIcon, String largeIcon) {
+			putValue(javax.swing.Action.NAME, name);
+			putValue(javax.swing.Action.SMALL_ICON, new ImageIcon(smallIcon));
+			putValue(javax.swing.Action.LARGE_ICON_KEY, new ImageIcon(largeIcon));
+		}
 	}
 }
