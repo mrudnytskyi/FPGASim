@@ -305,8 +305,8 @@ public class MainFrame extends Frame {
 			}
 
 			SettingsHolder settingsHolder = new SettingsHolder(new File("settings.xml"));
-			Modeller modeller = new Modeller(new HardwareSystem(settingsHolder), settingsHolder);
-			tabbed.setComponentAt(1, new JScrollPane(new GantDiagramPanel(modeller.modell(levelsTasks, allTasks))));
+			Simulator simulator = new Simulator(new HardwareSystem(settingsHolder), settingsHolder);
+			tabbed.setComponentAt(1, new JScrollPane(new GantDiagramPanel(simulator.simulate(levelsTasks, allTasks))));
 		}
 	}
 

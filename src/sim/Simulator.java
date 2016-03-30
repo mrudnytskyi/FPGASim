@@ -3,26 +3,27 @@ package sim;
 import gui.TimeTracks;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
 /**
- * Class for modelling.
+ * Class for simulating system work.
  * 
  * @author Mir4ik
  * @version 0.1 09.05.2015
  */
-public class Modeller {
+public class Simulator {
 	private final HardwareSystem hardwareSystem;
 	private final SettingsHolder settingsHolder;
 
-	public Modeller(HardwareSystem hardwareSystem, SettingsHolder settingsHolder) {
+	public Simulator(HardwareSystem hardwareSystem, SettingsHolder settingsHolder) {
 		this.hardwareSystem = hardwareSystem;
 		this.settingsHolder = settingsHolder;
 	}
 
-	public TimeTracks modell(List<Task>[] levelsTasks, List<Task> allTasks) {
+	public TimeTracks simulate(List<Task>[] levelsTasks, List<Task> allTasks) {
 		int memoryAccessTime = settingsHolder.getMemoryAccessTime();
 		int networkMaxRandomTime = settingsHolder.getNetworkMaxRandomTime();
 		int loadLastWordTime = settingsHolder.getLoadLastWordTime();
@@ -35,33 +36,33 @@ public class Modeller {
 		BitSet finished = new BitSet(tasksCount);
 		finished.set(0, tasksCount);
 
+		System.out.printf("Start working with time: memoryAccess = %s loadLastWord = %s loadDatum = %s%n",
+				memoryAccessTime, loadLastWordTime, loadDatumTime);
 		while (!finished.isEmpty()) {
 			// loading
 			List<Task> working = new ArrayList<>();
-			for (int i = 0; i < currentLevel.size(); i++) {
-				Task t = currentLevel.get(i);
-
+			for (Task t : currentLevel) {
 				time.addWaitingToLongestLoading(t.getId());
 
 				switch (hardwareSystem.findConfiguration(t)) {
 					case TSK_FPGA:
-						System.out.println("F " + t);
 						// TODO make when 2 same tasks at same time
+						System.out.printf("Load %s from FPGA%n", t);
 						hardwareSystem.load(t);
 						break;
 					case TSK_LIB:
-						System.out.println("L " + t);
 						int libTime = t.getBytestreamWords() * memoryAccessTime;
 						int randTime = new Random().nextInt(networkMaxRandomTime);
 						time.addSearchingAndLoading(t.getId(), libTime + randTime);
 						time.addLoadingLastWord(t.getId(), loadLastWordTime);
+						System.out.printf("Load %s from library. LibTime = %s, randTime = %s%n", t, libTime, randTime);
 						hardwareSystem.load(t);
 						break;
 					case TSK_MEM:
-						System.out.println("M " + t);
 						int memTime = t.getBytestreamWords() * memoryAccessTime;
 						time.addSearchingAndLoading(t.getId(), memTime);
 						time.addLoadingLastWord(t.getId(), loadLastWordTime);
+						System.out.printf("Load %s from memory. MemTime = %s%n", t, memTime);
 						hardwareSystem.load(t);
 						break;
 				}
@@ -81,7 +82,7 @@ public class Modeller {
 					time.addWaitingToLongestCounting(t.getId());
 				}
 			}
-			// modeling working tasks
+			// simulate working tasks
 			for (Task t : working) {
 				time.addCounting(t.getId(), t.getWorkingTime());
 				finished.clear(t.getId());
@@ -99,9 +100,9 @@ public class Modeller {
 
 	private void writeGantt(TimeTracks time) {
 		try {
-			Files.write(Paths.get("model.txt"), time.toString().getBytes());
+			Files.write(Paths.get("simulated.txt"), time.toString().getBytes());
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new UncheckedIOException(e);
 		}
 	}
 }
