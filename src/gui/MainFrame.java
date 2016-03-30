@@ -1,7 +1,11 @@
 package gui;
 
-import java.awt.BorderLayout;
-import java.awt.Toolkit;
+import com.thoughtworks.xstream.XStream;
+import sim.*;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
@@ -10,25 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import sim.Library;
-import sim.Modeller;
-import sim.Task;
-
-import com.thoughtworks.xstream.XStream;
-
 /**
  * Main frame for application.
  * 
@@ -36,6 +21,126 @@ import com.thoughtworks.xstream.XStream;
  * @version 0.1 16.03.2015
  */
 public class MainFrame extends Frame {
+
+	private static final long serialVersionUID = 8350407021970335634L;
+	private final GraphPanel graph = new GraphPanel();
+	private final Library library = new Library();
+	private final JTabbedPane tabbed = new JTabbedPane();
+
+	public MainFrame() {
+		super("FPGA Sym");
+		setLayout(new BorderLayout());
+		setSize(Toolkit.getDefaultToolkit().getScreenSize());
+		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setJMenuBar(createMenu());
+		add(createToolBar(), BorderLayout.NORTH);
+		add(createContent(), BorderLayout.CENTER);
+	}
+
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(() -> new MainFrame().setVisible(true));
+	}
+
+	private JPanel createContent() {
+		tabbed.addTab("Graph", new ImageIcon("res\\algo.png"), new JScrollPane(graph));
+		tabbed.addTab("Gant", new ImageIcon("res\\gant.png"), null);
+		JPanel content = new JPanel(new BorderLayout());
+		content.add(tabbed, BorderLayout.CENTER);
+		return content;
+	}
+
+	private JMenuBar createMenu() {
+		JMenuBar menu = new JMenuBar();
+		JMenu algorithm = new JMenu("Algorithm");
+		algorithm.add(new Generate());
+		algorithm.add(new Open());
+		algorithm.addSeparator();
+		algorithm.add(new Save());
+		menu.add(algorithm);
+		JMenu graph = new JMenu("Graph");
+		graph.add(new AddVertex());
+		graph.add(new AddEdge());
+		graph.addSeparator();
+		graph.add(new Properties());
+		menu.add(graph);
+		JMenu library = new JMenu("Library");
+		library.add(new Edit());
+		menu.add(library);
+		JMenu calculations = new JMenu("Calculations");
+		calculations.add(new Simulate());
+		menu.add(calculations);
+		menu.add(Box.createHorizontalGlue());
+		JMenu help = new JMenu("?");
+		help.add(new About());
+		help.add(new Exit());
+		menu.add(help);
+		return menu;
+	}
+
+	private JToolBar createToolBar() {
+		JToolBar toolBar = new JToolBar("Tools");
+		toolBar.add(new Open());
+		toolBar.add(new Save());
+		toolBar.addSeparator();
+		toolBar.add(new AddVertex());
+		toolBar.add(new AddEdge());
+		toolBar.add(new Properties());
+		toolBar.addSeparator();
+		toolBar.add(new Simulate());
+		return toolBar;
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Task>[] makeTasks() {
+		//TODO bug when *3    *4    *5
+		//                 *6
+		//                       *7
+		// 7 is added before 6, but is connected
+		int[][] transitions = graph.createTransitions();
+		int[] hwNumbers = graph.getPropertiesData();
+
+		int tasksCounter = 0;
+		int levelsCounter = 0;
+		List<List<Task>> tasks = new ArrayList<>();
+
+		List<Task> firstLevel = new ArrayList<>();
+		firstLevel.add(new Task(hwNumbers[0]));
+		tasksCounter++;
+		tasks.add(firstLevel);
+		levelsCounter++;
+
+		while (tasksCounter != transitions.length) {
+			List<Task> level = new ArrayList<>();
+			List<Task> prevLevel = tasks.get(levelsCounter - 1);
+
+			Set<Integer> visited = new HashSet<>();
+			for (int i = 0; i < prevLevel.size(); i++) {
+				int id = prevLevel.get(i).getId();
+				int[] transitionsLine = transitions[id];
+
+				for (int j = 0; j < transitionsLine.length; j++) {
+					if ((transitionsLine[j] == 1)
+							&& !visited.contains(new Integer(j))) {
+						level.add(new Task(hwNumbers[j]));
+						tasksCounter++;
+						visited.add(j);
+					}
+				}
+			}
+
+			tasks.add(level);
+			levelsCounter++;
+		}
+
+		List<Task>[] result = new ArrayList[tasks.size()];
+		int i = 0;
+		for (List<Task> lst : tasks) {
+			result[i] = lst;
+			i++;
+		}
+		return result;
+	}
 
 	private class Generate extends Action {
 
@@ -69,9 +174,7 @@ public class MainFrame extends Frame {
 			chooser.setSelectedFile(new File("temp.xml"));
 			int result = chooser.showOpenDialog(MainFrame.this);
 			if (result == JFileChooser.APPROVE_OPTION) {
-				Object[] memento =
-						(Object[]) new XStream().fromXML(chooser
-								.getSelectedFile());
+				Object[] memento = (Object[]) new XStream().fromXML(chooser.getSelectedFile());
 				int[][] trans = (int[][]) memento[0];
 				for (int[] tran : trans) {
 					graph.addVertex();
@@ -100,8 +203,7 @@ public class MainFrame extends Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JFileChooser chooser = new JFileChooser(".");
-			chooser.setFileFilter(new FileNameExtensionFilter(
-					"eXtensible Markup Language files (XML)", "xml", "XML"));
+			chooser.setFileFilter(new FileNameExtensionFilter("eXtensible Markup Language files (XML)", "xml", "XML"));
 			chooser.setSelectedFile(new File("temp.xml"));
 			int result = chooser.showSaveDialog(MainFrame.this);
 			if (result == JFileChooser.APPROVE_OPTION) {
@@ -158,9 +260,7 @@ public class MainFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			PropertiesFrame pf =
-					new PropertiesFrame(library.getSize(),
-							graph.getPropertiesData(), graph);
+			PropertiesFrame pf = new PropertiesFrame(library.getSize(), graph.getPropertiesData(), graph);
 			pf.setVisible(true);
 		}
 	}
@@ -193,13 +293,14 @@ public class MainFrame extends Frame {
 			//TODO bug when empty, bug with scrollpane
 			List<Task>[] levelsTasks = makeTasks();
 
-			List<Task> allTasks = new ArrayList<Task>();
+			List<Task> allTasks = new ArrayList<>();
 			for (List<Task> levelsTask : levelsTasks) {
 				allTasks.addAll(levelsTask);
 			}
 
-			tabbed.setComponentAt(1, new JScrollPane(new GantDiagramPanel(
-					Modeller.modell(levelsTasks, allTasks))));
+			SettingsHolder settingsHolder = new SettingsHolder(new File("settings.xml"));
+			Modeller modeller = new Modeller(new HardwareSystem(settingsHolder), settingsHolder);
+			tabbed.setComponentAt(1, new JScrollPane(new GantDiagramPanel(modeller.modell(levelsTasks, allTasks))));
 		}
 	}
 
@@ -213,8 +314,7 @@ public class MainFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			showInfo("Written by Myroslav Rudnytskyi, Kyiv Politechnic "
-					+ "Institute, group IO-41m, 2015.");
+			showInfo("Written by Myroslav Rudnytskyi, Kyiv Politechnic Institute, group IO-41m, 2015.");
 		}
 	}
 
@@ -232,129 +332,5 @@ public class MainFrame extends Frame {
 				System.exit(0);
 			}
 		}
-	}
-
-	private static final long serialVersionUID = 8350407021970335634L;
-
-	private final GraphPanel graph = new GraphPanel();
-
-	private final Library library = new Library();
-
-	private final JTabbedPane tabbed = new JTabbedPane();
-
-	public MainFrame() {
-		super("FPGA Sym");
-		setLayout(new BorderLayout());
-		setSize(Toolkit.getDefaultToolkit().getScreenSize());
-		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setJMenuBar(createMenu());
-		add(createToolBar(), BorderLayout.NORTH);
-		add(createContent(), BorderLayout.CENTER);
-	}
-
-	private JPanel createContent() {
-		tabbed.addTab("Graph", new ImageIcon("res\\algo.png"), new JScrollPane(
-				graph));
-		tabbed.addTab("Gant", new ImageIcon("res\\gant.png"), null);
-		JPanel content = new JPanel(new BorderLayout());
-		content.add(tabbed, BorderLayout.CENTER);
-		return content;
-	}
-
-	private JMenuBar createMenu() {
-		JMenuBar menu = new JMenuBar();
-		JMenu algorithm = new JMenu("Algorithm");
-		algorithm.add(new Generate());
-		algorithm.add(new Open());
-		algorithm.addSeparator();
-		algorithm.add(new Save());
-		menu.add(algorithm);
-		JMenu graph = new JMenu("Graph");
-		graph.add(new AddVertex());
-		graph.add(new AddEdge());
-		graph.addSeparator();
-		graph.add(new Properties());
-		menu.add(graph);
-		JMenu library = new JMenu("Library");
-		library.add(new Edit());
-		menu.add(library);
-		JMenu calculations = new JMenu("Calculations");
-		calculations.add(new Simulate());
-		menu.add(calculations);
-		menu.add(Box.createHorizontalGlue());
-		JMenu help = new JMenu("?");
-		help.add(new About());
-		help.add(new Exit());
-		menu.add(help);
-		return menu;
-	}
-
-	private JToolBar createToolBar() {
-		JToolBar toolBar = new JToolBar("Tools");
-		toolBar.add(new Open());
-		toolBar.add(new Save());
-		toolBar.addSeparator();
-		toolBar.add(new AddVertex());
-		toolBar.add(new AddEdge());
-		toolBar.add(new Properties());
-		toolBar.addSeparator();
-		toolBar.add(new Simulate());
-		return toolBar;
-	}
-
-	@SuppressWarnings("unchecked")
-	private List<Task>[] makeTasks() {
-		//TODO bug when *3    *4    *5
-		//                 *6        
-		//                       *7
-		// 7 is added before 6, but is connected
-		int[][] transitions = graph.createTransitions();
-		int[] hwNumbers = graph.getPropertiesData();
-
-		int tasksCounter = 0;
-		int levelsCounter = 0;
-		List<List<Task>> tasks = new ArrayList<List<Task>>();
-
-		List<Task> firstLevel = new ArrayList<Task>();
-		firstLevel.add(new Task(hwNumbers[0]));
-		tasksCounter++;
-		tasks.add(firstLevel);
-		levelsCounter++;
-
-		while (tasksCounter != transitions.length) {
-			List<Task> level = new ArrayList<Task>();
-			List<Task> prevLevel = tasks.get(levelsCounter - 1);
-
-			Set<Integer> visited = new HashSet<Integer>();
-			for (int i = 0; i < prevLevel.size(); i++) {
-				int id = prevLevel.get(i).getId();
-				int[] transitionsLine = transitions[id];
-
-				for (int j = 0; j < transitionsLine.length; j++) {
-					if ((transitionsLine[j] == 1)
-							&& !visited.contains(new Integer(j))) {
-						level.add(new Task(hwNumbers[j]));
-						tasksCounter++;
-						visited.add(j);
-					}
-				}
-			}
-
-			tasks.add(level);
-			levelsCounter++;
-		}
-
-		List<Task>[] result = new ArrayList[tasks.size()];
-		int i = 0;
-		for (List<Task> lst : tasks) {
-			result[i] = lst;
-			i++;
-		}
-		return result;
-	}
-
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> new MainFrame().setVisible(true));
 	}
 }

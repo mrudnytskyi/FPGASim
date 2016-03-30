@@ -12,35 +12,31 @@ import java.util.HashSet;
  */
 public class HardwareSystem {
 
-	public enum State {
-		TSK_FPGA, TSK_MEM, TSK_LIB;
-	}
-
-	public static final int FPGA_MAX_SIZE = 9;
-
-	private static final int MAX_BONUS = 10;
-
+	private final SettingsHolder settingsHolder;
 	/**
 	 * contains hwN
 	 */
-	private static ArrayList<Integer> FPGA = new ArrayList<Integer>();
-
-	//TODO memory make max size, do not ignore adding
+	private final ArrayList<Integer> FPGA = new ArrayList<>();
 	/**
 	 * contains hwN, set is used to ignore adding 2 same tasks
 	 */
-	private static HashSet<Integer> memory = new HashSet<Integer>();
+	private final HashSet<Integer> memory = new HashSet<>();
 
+	//TODO memory make max size, do not ignore adding
 	/**
 	 * contains bonus points. Index bonus = index hwN in FPGA
 	 */
-	private static ArrayList<Integer> bonuses = new ArrayList<Integer>();
+	private final ArrayList<Integer> bonuses = new ArrayList<>();
 
-	public static State findConfiguration(Task task) {
-		if (HardwareSystem.FPGA.contains(task.getHwN())) {
+	public HardwareSystem(SettingsHolder settingsHolder) {
+		this.settingsHolder = settingsHolder;
+	}
+
+	public State findConfiguration(Task task) {
+		if (FPGA.contains(task.getHwN())) {
 			return State.TSK_FPGA;
 		} else {
-			if (HardwareSystem.memory.contains(task.getHwN())) {
+			if (memory.contains(task.getHwN())) {
 				return State.TSK_MEM;
 			} else {
 				return State.TSK_LIB;
@@ -48,20 +44,25 @@ public class HardwareSystem {
 		}
 	}
 
-	public static void load(Task task) {
-		if (HardwareSystem.FPGA.size() == HardwareSystem.FPGA_MAX_SIZE) {
-			int smallestBonus = Collections.min(HardwareSystem.bonuses);
-			int smallestBonusIndex =
-					Collections.binarySearch(HardwareSystem.bonuses,
-							smallestBonus);
-			int smallestBonusHwN = HardwareSystem.FPGA.get(smallestBonusIndex);
-			HardwareSystem.FPGA.remove(new Integer(smallestBonusHwN));
-			HardwareSystem.bonuses.remove(smallestBonusIndex);
+	public void load(Task task) {
+		int fpgaMaxSize = settingsHolder.getFpgaSize();
+		int maxBonus = settingsHolder.getBonus();
+
+		if (FPGA.size() == fpgaMaxSize) {
+			int smallestBonus = Collections.min(bonuses);
+			int smallestBonusIndex = Collections.binarySearch(bonuses, smallestBonus);
+			int smallestBonusHwN = FPGA.get(smallestBonusIndex);
+			FPGA.remove(new Integer(smallestBonusHwN));
+			bonuses.remove(smallestBonusIndex);
 		}
-		HardwareSystem.FPGA.add(task.getHwN());
-		for (int i = 0; i < HardwareSystem.bonuses.size(); i++) {
-			HardwareSystem.bonuses.set(i, HardwareSystem.bonuses.get(i) - 1);
+		FPGA.add(task.getHwN());
+		for (int i = 0; i < bonuses.size(); i++) {
+			bonuses.set(i, bonuses.get(i) - 1);
 		}
-		HardwareSystem.bonuses.add(HardwareSystem.MAX_BONUS);
+		bonuses.add(maxBonus);
+	}
+
+	public enum State {
+		TSK_FPGA, TSK_MEM, TSK_LIB
 	}
 }

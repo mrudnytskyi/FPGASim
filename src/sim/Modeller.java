@@ -5,11 +5,7 @@ import gui.TimeTracks;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Class for modelling.
@@ -18,14 +14,19 @@ import java.util.Random;
  * @version 0.1 09.05.2015
  */
 public class Modeller {
+	private final HardwareSystem hardwareSystem;
+	private final SettingsHolder settingsHolder;
 
-	private static final int MEMORY_ACCESS_TIME = 1;
-	private static final int LOAD_LAST_TIME = 10;
-	private static final int LOAD_DATUM_TIME = 2;
-	private static final int NETWORK_MAX_RANDOM_TIME = 5;
+	public Modeller(HardwareSystem hardwareSystem, SettingsHolder settingsHolder) {
+		this.hardwareSystem = hardwareSystem;
+		this.settingsHolder = settingsHolder;
+	}
 
-	public static TimeTracks modell(List<Task>[] levelsTasks,
-			List<Task> allTasks) {
+	public TimeTracks modell(List<Task>[] levelsTasks, List<Task> allTasks) {
+		int memoryAccessTime = settingsHolder.getMemoryAccessTime();
+		int networkMaxRandomTime = settingsHolder.getNetworkMaxRandomTime();
+		int loadLastWordTime = settingsHolder.getLoadLastWordTime();
+		int loadDatumTime = settingsHolder.getLoadDatumTime();
 
 		int tasksCount = allTasks.size();
 		int level = 0;
@@ -36,43 +37,36 @@ public class Modeller {
 
 		while (!finished.isEmpty()) {
 			// loading
-			List<Task> working = new ArrayList<Task>();
+			List<Task> working = new ArrayList<>();
 			for (int i = 0; i < currentLevel.size(); i++) {
 				Task t = currentLevel.get(i);
 
 				time.addWaitingToLongestLoading(t.getId());
 
-				switch (HardwareSystem.findConfiguration(t)) {
-				case TSK_FPGA:
-					System.out.println("F " + t);
-					// TODO make when 2 same tasks at same time
-					HardwareSystem.load(t);
-					break;
-				case TSK_LIB:
-					System.out.println("L " + t);
-					int libTime =
-							t.getBytestreamWords()
-									* Modeller.MEMORY_ACCESS_TIME;
-					int randTime =
-							new Random()
-									.nextInt(Modeller.NETWORK_MAX_RANDOM_TIME);
-					time.addSearchingAndLoading(t.getId(), libTime + randTime);
-					time.addLoadingLastWord(t.getId(), Modeller.LOAD_LAST_TIME);
-					HardwareSystem.load(t);
-					break;
-				case TSK_MEM:
-					System.out.println("M " + t);
-					int memTime =
-							t.getBytestreamWords()
-									* Modeller.MEMORY_ACCESS_TIME;
-					time.addSearchingAndLoading(t.getId(), memTime);
-					time.addLoadingLastWord(t.getId(), Modeller.LOAD_LAST_TIME);
-					HardwareSystem.load(t);
-					break;
+				switch (hardwareSystem.findConfiguration(t)) {
+					case TSK_FPGA:
+						System.out.println("F " + t);
+						// TODO make when 2 same tasks at same time
+						hardwareSystem.load(t);
+						break;
+					case TSK_LIB:
+						System.out.println("L " + t);
+						int libTime = t.getBytestreamWords() * memoryAccessTime;
+						int randTime = new Random().nextInt(networkMaxRandomTime);
+						time.addSearchingAndLoading(t.getId(), libTime + randTime);
+						time.addLoadingLastWord(t.getId(), loadLastWordTime);
+						hardwareSystem.load(t);
+						break;
+					case TSK_MEM:
+						System.out.println("M " + t);
+						int memTime = t.getBytestreamWords() * memoryAccessTime;
+						time.addSearchingAndLoading(t.getId(), memTime);
+						time.addLoadingLastWord(t.getId(), loadLastWordTime);
+						hardwareSystem.load(t);
+						break;
 				}
 				//TODO loading before start working?
-				time.addLoadingData(t.getId(), t.getDataCount()
-						* Modeller.LOAD_DATUM_TIME);
+				time.addLoadingData(t.getId(), t.getDataCount() * loadDatumTime);
 
 				working.add(t);
 			}
@@ -97,13 +91,13 @@ public class Modeller {
 				currentLevel = levelsTasks[++level];
 				Collections.sort(currentLevel);
 			} else {
-				Modeller.writeGantt(time);
+				writeGantt(time);
 			}
 		}
 		return time;
 	}
 
-	private static void writeGantt(TimeTracks time) {
+	private void writeGantt(TimeTracks time) {
 		try {
 			Files.write(Paths.get("model.txt"), time.toString().getBytes());
 		} catch (IOException e) {
