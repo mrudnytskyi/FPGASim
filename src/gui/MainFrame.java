@@ -98,11 +98,7 @@ public class MainFrame extends Frame {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Task>[] makeTasks() {
-		//TODO bug when *3    *4    *5
-		//                 *6
-		//                       *7
-		// 7 is added before 6, but is connected
+	private List<Task>[] makeTaskLevels() {
 		int[][] transitions = graph.createTransitions();
 		int[] hwNumbers = graph.getPropertiesData();
 
@@ -121,13 +117,18 @@ public class MainFrame extends Frame {
 			List<Task> prevLevel = tasks.get(levelsCounter - 1);
 
 			Set<Integer> visited = new HashSet<>();
-			for (int i = 0; i < prevLevel.size(); i++) {
-				int id = prevLevel.get(i).getId();
-				int[] transitionsLine = transitions[id];
+			for (Task prevLevelTask : prevLevel) {
+				int[] transitionsLine = transitions[prevLevelTask.getId()];
 
 				for (int j = 0; j < transitionsLine.length; j++) {
-					if ((transitionsLine[j] == 1)
-							&& !visited.contains(new Integer(j))) {
+					boolean notConnectedOnCurrentLevel = true;
+					for (Task levelTask : level) {
+						notConnectedOnCurrentLevel &= transitions[levelTask.getId()][j] != 1;
+					}
+
+					boolean isConnected = transitionsLine[j] == 1;
+					boolean notVisited = !visited.contains(j);
+					if (isConnected && notVisited && notConnectedOnCurrentLevel) {
 						level.add(new Task(hwNumbers[j]));
 						tasksCounter++;
 						visited.add(j);
@@ -297,7 +298,7 @@ public class MainFrame extends Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			//TODO bug when empty, bug with scrollpane
-			List<Task>[] levelsTasks = makeTasks();
+			List<Task>[] levelsTasks = makeTaskLevels();
 
 			List<Task> allTasks = new ArrayList<>();
 			for (List<Task> levelsTask : levelsTasks) {
