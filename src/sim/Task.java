@@ -48,6 +48,26 @@ public class Task implements Comparable<Task> {
 	}
 
 	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Task task = (Task) o;
+
+		return id == task.getId();
+	}
+
+	@Override
+	public int hashCode() {
+		int result = id;
+		result = 31 * result + hwN;
+		result = 31 * result + workTime;
+		result = 31 * result + bytestreamWords;
+		result = 31 * result + dataCount;
+		return result;
+	}
+
+	@Override
 	public int compareTo(Task o) {
 		if (o.workTime > workTime) {
 			return 1;

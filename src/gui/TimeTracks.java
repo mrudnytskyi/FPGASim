@@ -60,6 +60,41 @@ public class TimeTracks {
 		}
 	}
 
+	public int getMaxLength() {
+		int maxSize = 0;
+		for (StringBuilder track : data) {
+			maxSize = Math.max(maxSize, track.length());
+		}
+		return maxSize;
+	}
+
+	public void addWaitingToLongest() {
+		int maxSize = getMaxLength();
+		if (maxSize == 0) return;
+		for (StringBuilder track : data) {
+			while (track.length() != maxSize) {
+				track.append(' ');
+			}
+		}
+	}
+
+	public int getLength(int track) {
+		checkBounds(track);
+		return data[track].length();
+	}
+
+	public String getLongestTrack() {
+		int maxLength = getMaxLength();
+		int index = -1;
+		for (int i = 0; i < data.length; i++) {
+			StringBuilder el = data[i];
+			if (el.length() == maxLength) {
+				index = i;
+			}
+		}
+		return getTrack(index);
+	}
+
 	public void addWaitingToLongestCounting(int track) {
 		checkBounds(track);
 		int maxSize = 0;

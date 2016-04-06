@@ -18,7 +18,6 @@ import java.util.Set;
  * Main frame for application.
  * 
  * @author Mir4ik
- * @version 0.1 16.03.2015
  */
 public class MainFrame extends Frame {
 
@@ -298,16 +297,9 @@ public class MainFrame extends Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			//TODO bug when empty, bug with scrollpane
-			List<Task>[] levelsTasks = makeTaskLevels();
-
-			List<Task> allTasks = new ArrayList<>();
-			for (List<Task> levelsTask : levelsTasks) {
-				allTasks.addAll(levelsTask);
-			}
-
 			SettingsHolder settingsHolder = new SettingsHolder(new File("settings.xml"));
-			Simulator simulator = new Simulator(new HardwareSystem(settingsHolder), settingsHolder);
-			tabbed.setComponentAt(1, new JScrollPane(new GantDiagramPanel(simulator.simulate(levelsTasks, allTasks))));
+			NewSimulator simulator = new NewSimulator(new HardwareSystem(settingsHolder), settingsHolder);
+			tabbed.setComponentAt(1, new JScrollPane(new GantDiagramPanel(simulator.simulate(makeTaskLevels()))));
 		}
 	}
 
