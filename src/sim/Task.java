@@ -3,9 +3,6 @@ package sim;
 /**
  * Class represents simple hardware task with properties: number, work time,
  * byte-stream words and data words.
- * 
- * @author Mir4ik
- * @version 0.1 09.05.2015
  */
 public class Task implements Comparable<Task> {
 

@@ -10,9 +10,6 @@ import static javax.swing.JOptionPane.*;
  * that all of them use it as superclass.
  * <p>
  * Class extends class from the standard library - {@link JFrame}.
- * 
- * @author Mir4ik
- * @version 0.1 18.03.2015
  */
 public abstract class Frame extends JFrame {
 

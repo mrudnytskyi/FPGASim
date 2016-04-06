@@ -3,12 +3,10 @@ package sim;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * Class represents state of system.
- * 
- * @author Mir4ik
- * @version 0.1 16.05.2015
  */
 public class HardwareSystem {
 
@@ -21,8 +19,6 @@ public class HardwareSystem {
 	 * contains hwN, set is used to ignore adding 2 same tasks
 	 */
 	private final HashSet<Integer> memory = new HashSet<>();
-
-	//TODO memory make max size, do not ignore adding
 	/**
 	 * contains bonus points. Index bonus = index hwN in FPGA
 	 */
@@ -47,6 +43,7 @@ public class HardwareSystem {
 	public void load(Task task) {
 		int fpgaMaxSize = settingsHolder.getFpgaSize();
 		int maxBonus = settingsHolder.getBonus();
+		int memorySize = settingsHolder.getMemorySize();
 
 		if (FPGA.size() == fpgaMaxSize) {
 			int smallestBonus = Collections.min(bonuses);
@@ -54,6 +51,12 @@ public class HardwareSystem {
 			int smallestBonusHwN = FPGA.get(smallestBonusIndex);
 			FPGA.remove(new Integer(smallestBonusHwN));
 			bonuses.remove(smallestBonusIndex);
+			if (memory.size() == memorySize) {
+				Iterator<Integer> iterator = memory.iterator();
+				iterator.next();
+				iterator.remove();
+			}
+			memory.add(smallestBonusHwN);
 		}
 		FPGA.add(task.getHwN());
 		for (int i = 0; i < bonuses.size(); i++) {

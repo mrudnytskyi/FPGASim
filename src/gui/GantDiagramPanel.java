@@ -1,14 +1,10 @@
 package gui;
 
-import java.awt.Color;
-import java.awt.Graphics;
-
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
 
 /**
- * 
- * @author Myroslav Rudnytskyi
- * @version 0.1 14.06.2015
+ * Class represents panel for diagram drawing.
  */
 public class GantDiagramPanel extends JPanel {
 
@@ -28,26 +24,21 @@ public class GantDiagramPanel extends JPanel {
 			String temp = data.getTrack(i);
 			for (int j = 0; j < temp.length(); j++) {
 				switch (temp.charAt(j)) {
-				case ' ':
-					drawEmpty(g, j * GantDiagramPanel.SCALING, i
-							* GantDiagramPanel.SCALING);
-					break;
-				case '#':
-					drawLoad(g, j * GantDiagramPanel.SCALING, i
-							* GantDiagramPanel.SCALING);
-					break;
-				case '$':
-					drawLoadLast(g, j * GantDiagramPanel.SCALING, i
-							* GantDiagramPanel.SCALING);
-					break;
-				case '&':
-					drawData(g, j * GantDiagramPanel.SCALING, i
-							* GantDiagramPanel.SCALING);
-					break;
-				case '*':
-					drawWork(g, j * GantDiagramPanel.SCALING, i
-							* GantDiagramPanel.SCALING);
-					break;
+					case ' ':
+						drawEmpty(g, j * GantDiagramPanel.SCALING, i * GantDiagramPanel.SCALING);
+						break;
+					case '#':
+						drawLoad(g, j * GantDiagramPanel.SCALING, i * GantDiagramPanel.SCALING);
+						break;
+					case '$':
+						drawLoadLast(g, j * GantDiagramPanel.SCALING, i * GantDiagramPanel.SCALING);
+						break;
+					case '&':
+						drawData(g, j * GantDiagramPanel.SCALING, i * GantDiagramPanel.SCALING);
+						break;
+					case '*':
+						drawWork(g, j * GantDiagramPanel.SCALING, i * GantDiagramPanel.SCALING);
+						break;
 				}
 			}
 		}

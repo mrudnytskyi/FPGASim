@@ -16,8 +16,6 @@ import java.util.Set;
 
 /**
  * Main frame for application.
- * 
- * @author Mir4ik
  */
 public class MainFrame extends Frame {
 
@@ -58,7 +56,6 @@ public class MainFrame extends Frame {
 	private JMenuBar createMenu() {
 		JMenuBar menu = new JMenuBar();
 		JMenu algorithm = new JMenu("Algorithm");
-		algorithm.add(new Generate());
 		algorithm.add(new Open());
 		algorithm.addSeparator();
 		algorithm.add(new Save());
@@ -146,21 +143,6 @@ public class MainFrame extends Frame {
 			i++;
 		}
 		return result;
-	}
-
-	private class Generate extends Action {
-
-		private static final long serialVersionUID = -7062237348840489138L;
-
-		public Generate() {
-			super("Generate", "res\\file.png", "res\\file_big.png");
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			GeneratorFrame gf = new GeneratorFrame();
-			gf.setVisible(true);
-		}
 	}
 
 	private class Open extends Action {

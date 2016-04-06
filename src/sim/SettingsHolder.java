@@ -6,11 +6,9 @@ import java.io.File;
 
 /**
  * Class encapsulates way to get all necessary constants.
- *
- * @author Myroslav Rudnytskyi
- * @version 30.03.2016
  */
 public class SettingsHolder {
+	public static final int DEFAULT_MEMORY_MAX_SIZE = 32;
 	private static final int DEFAULT_FPGA_MAX_SIZE = 9;
 	private static final int DEFAULT_MAX_BONUS = 10;
 	private static final int DEFAULT_MEMORY_ACCESS_TIME = 1;
@@ -53,6 +51,10 @@ public class SettingsHolder {
 		return settings.networkMaxRandomTime;
 	}
 
+	public int getMemorySize() {
+		return settings.memorySize;
+	}
+
 	private static class Settings {
 		final int fpgaSize;
 		final int bonus;
@@ -60,6 +62,7 @@ public class SettingsHolder {
 		final int loadDatumTime;
 		final int networkMaxRandomTime;
 		final int loadLastWordTime;
+		final int memorySize;
 
 		private Settings() {
 			this(
@@ -68,17 +71,19 @@ public class SettingsHolder {
 					DEFAULT_MEMORY_ACCESS_TIME,
 					DEFAULT_LOAD_DATUM_TIME,
 					DEFAULT_NETWORK_MAX_RANDOM_TIME,
-					DEFAULT_LOAD_LAST_TIME
+					DEFAULT_LOAD_LAST_TIME,
+					DEFAULT_MEMORY_MAX_SIZE
 			);
 		}
 
-		private Settings(int fpgaSize, int bonus, int memoryAccess, int loadDatum, int networkMaxRandom, int loadLast) {
+		private Settings(int fpgaSize, int bonus, int memoryAccess, int loadDatum, int networkMaxRandom, int loadLast, int memorySize) {
 			this.fpgaSize = fpgaSize;
 			this.bonus = bonus;
 			this.memoryAccessTime = memoryAccess;
 			this.loadDatumTime = loadDatum;
 			this.networkMaxRandomTime = networkMaxRandom;
 			this.loadLastWordTime = loadLast;
+			this.memorySize = memorySize;
 		}
 	}
 }

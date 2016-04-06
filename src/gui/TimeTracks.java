@@ -2,9 +2,6 @@ package gui;
 
 /**
  * Class represents command-line (text-based) version of Gant's diagram.
- * 
- * @author Mir4ik
- * @version 0.1 09.05.2015
  */
 public class TimeTracks {
 
@@ -81,18 +78,6 @@ public class TimeTracks {
 	public int getLength(int track) {
 		checkBounds(track);
 		return data[track].length();
-	}
-
-	public String getLongestTrack() {
-		int maxLength = getMaxLength();
-		int index = -1;
-		for (int i = 0; i < data.length; i++) {
-			StringBuilder el = data[i];
-			if (el.length() == maxLength) {
-				index = i;
-			}
-		}
-		return getTrack(index);
 	}
 
 	public void addWaitingToLongestCounting(int track) {

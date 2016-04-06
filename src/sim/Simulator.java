@@ -10,9 +10,6 @@ import java.util.*;
 
 /**
  * Class for simulating system work.
- * 
- * @author Mir4ik
- * @version 0.1 09.05.2015
  */
 public class Simulator {
 	private final HardwareSystem hardwareSystem;

@@ -1,23 +1,17 @@
 package sim;
 
-import java.io.File;
+import com.thoughtworks.xstream.XStream;
 
 import javax.swing.table.AbstractTableModel;
-
-import com.thoughtworks.xstream.XStream;
+import java.io.File;
 
 /**
  * Class represents library of hardware tasks.
- * 
- * @author Mir4ik
- * @version 0.1 10.06.2015
  */
 public class Library extends AbstractTableModel {
 
-	private static final long serialVersionUID = -8149438991804788594L;
-
 	public static final String LIBRARY_FILE = "library.xml";
-
+	private static final long serialVersionUID = -8149438991804788594L;
 	private final int[][] data;
 
 	public Library() {
@@ -52,14 +46,14 @@ public class Library extends AbstractTableModel {
 	@Override
 	public String getColumnName(int columnIndex) {
 		switch (columnIndex) {
-		case 0:
-			return "TASK";
-		case 1:
-			return "BYTESTREAM_WORDS";
-		case 2:
-			return "WORK_TIME";
-		case 3:
-			return "DATA_WORDS";
+			case 0:
+				return "TASK";
+			case 1:
+				return "BYTESTREAM_WORDS";
+			case 2:
+				return "WORK_TIME";
+			case 3:
+				return "DATA_WORDS";
 		}
 		return null;
 	}

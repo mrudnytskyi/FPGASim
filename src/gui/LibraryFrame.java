@@ -1,28 +1,54 @@
 package gui;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import com.thoughtworks.xstream.XStream;
+import sim.Library;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.FileWriter;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.WindowConstants;
-
-import sim.Library;
-
-import com.thoughtworks.xstream.XStream;
-
 /**
  * Frame for displaying library data.
- * 
- * @author Mir4ik
- * @version 0.1 17.03.2015
  */
 public class LibraryFrame extends Frame {
+
+	private static final long serialVersionUID = 5416000952627581896L;
+	private final JTable table = new JTable();
+	private final JButton ok = new JButton(new Ok(table));
+	private final JButton cancel = new JButton(new Cancel());
+
+	public LibraryFrame() {
+		super("Library");
+		setLayout(new BorderLayout());
+		setResizable(false);
+		setAlwaysOnTop(true);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		add(createContent(), BorderLayout.CENTER);
+		init();
+		pack();
+		moveToScreenCenter();
+	}
+
+	private void init() {
+		try {
+			table.setModel(new Library());
+		} catch (Exception e) {
+			showError("Exception" + e.getMessage());
+		}
+	}
+
+	private JPanel createContent() {
+		JScrollPane pane = new JScrollPane(table);
+		JPanel bottom = new JPanel(new GridLayout(1, 2, 50, 0));
+		bottom.add(ok);
+		bottom.add(cancel);
+		bottom.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
+		JPanel content = new JPanel(new BorderLayout());
+		content.add(pane, BorderLayout.CENTER);
+		content.add(bottom, BorderLayout.SOUTH);
+		return content;
+	}
 
 	private class Ok extends Action {
 
@@ -58,45 +84,5 @@ public class LibraryFrame extends Frame {
 		public void actionPerformed(ActionEvent e) {
 			setVisible(false);
 		}
-	}
-
-	private static final long serialVersionUID = 5416000952627581896L;
-
-	private final JTable table = new JTable();
-
-	private final JButton ok = new JButton(new Ok(table));
-
-	private final JButton cancel = new JButton(new Cancel());
-
-	public LibraryFrame() {
-		super("Library");
-		setLayout(new BorderLayout());
-		setResizable(false);
-		setAlwaysOnTop(true);
-		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		add(createContent(), BorderLayout.CENTER);
-		init();
-		pack();
-		moveToScreenCenter();
-	}
-
-	private void init() {
-		try {
-			table.setModel(new Library());
-		} catch (Exception e) {
-			showError("Exception" + e.getMessage());
-		}
-	}
-
-	private JPanel createContent() {
-		JScrollPane pane = new JScrollPane(table);
-		JPanel bottom = new JPanel(new GridLayout(1, 2, 50, 0));
-		bottom.add(ok);
-		bottom.add(cancel);
-		bottom.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
-		JPanel content = new JPanel(new BorderLayout());
-		content.add(pane, BorderLayout.CENTER);
-		content.add(bottom, BorderLayout.SOUTH);
-		return content;
 	}
 }
