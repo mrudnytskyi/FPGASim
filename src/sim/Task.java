@@ -24,6 +24,10 @@ public class Task implements Comparable<Task> {
 		dataCount = data[hwN][2];
 	}
 
+	public static void clearCounter() {
+		counter = 0;
+	}
+
 	public int getId() {
 		return id;
 	}

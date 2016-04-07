@@ -104,6 +104,30 @@ public class TimeTracks {
 		return data[track].toString();
 	}
 
+	public int getWorkingTime() {
+		int counter = 0;
+		for (StringBuilder aData : data) {
+			for (int i = 0; i < aData.length(); i++) {
+				if (aData.charAt(i) == '*') {
+					counter++;
+				}
+			}
+		}
+		return counter;
+	}
+
+	public int getLoadingTime() {
+		int counter = 0;
+		for (StringBuilder aData : data) {
+			for (int i = 0; i < aData.length(); i++) {
+				if (aData.charAt(i) == '#' || aData.charAt(i) == '$' || aData.charAt(i) == '&') {
+					counter++;
+				}
+			}
+		}
+		return counter;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
